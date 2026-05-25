@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" font-family="ui-monospace, monospace">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#06121f"/>
+      <stop offset="1" stop-color="#0a1a2e"/>
+    </linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#a5ffb0" stroke-opacity="0.15" stroke-width="0.5"/>
+    </pattern>
+  </defs>
+  <rect width="800" height="500" fill="url(#g)"/>
+  <rect width="800" height="500" fill="url(#grid)"/>
+  <rect x="20" y="20" width="760" height="460" fill="none" stroke="#a5ffb0" stroke-opacity="0.7"/>
+  <text x="40" y="60" fill="#a5ffb0" font-size="14" opacity="0.7">// ECHO NOC — EVIDENCE ARTIFACT</text>
+  <text x="40" y="160" fill="#e6f1ff" font-size="42" font-weight="700">Il trattino scomparso</text>
+  <text x="40" y="200" fill="#a5ffb0" font-size="18">Data quality — Milo @ mapping team</text>
+  <g transform="translate(40,260)" fill="#9fb3c8" font-size="13">
+    <text y="0">$ tail -f /var/echo/incident.log</text>
+    <text y="22">2026-05-22 07:42:01  [DEPLOY] release-bot v27 mso-router edge-03</text>
+    <text y="44">2026-05-22 07:42:14  [ERROR] route_owner lookup failed BB042</text>
+    <text y="66">2026-05-22 07:42:15  [WARN ] fallback host=edge-03</text>
+    <text y="88">2026-05-22 07:42:16  [ERROR] HTTP 503 mso-router</text>
+    <text y="110" fill="#a5ffb0">2026-05-22 07:42:17  [TRACE] INC-4721 opened</text>
+  </g>
+  <circle cx="740" cy="60" r="6" fill="#a5ffb0"/>
+  <text x="720" y="40" fill="#a5ffb0" font-size="11">REC</text>
+</svg>
