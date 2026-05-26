@@ -43,5 +43,5 @@ export function QueryBlock({
 }
 
 export function AIPromptBlock({ prompt }: { prompt: string }) {
-  return <QueryBlock title="Prompt AI" query={prompt} label="Copia prompt" />;
+  return <QueryBlock title="Indovinello" query={prompt} label="Copia indovinello" />;
 }

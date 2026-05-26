@@ -16,7 +16,7 @@
   <text x="40" y="200" fill="#39e0ff" font-size="18">Black box log export — parser KO</text>
   <g transform="translate(40,260)" fill="#9fb3c8" font-size="13">
     <text y="0">$ tail -f /var/echo/incident.log</text>
-    <text y="22">2026-05-22 07:42:01  [DEPLOY] release-bot v27 mso-router edge-03</text>
+    <text y="22">2026-05-22 07:42:01  [DEPLOY]  mso-router edge-03</text>
     <text y="44">2026-05-22 07:42:14  [ERROR] route_owner lookup failed BB042</text>
     <text y="66">2026-05-22 07:42:15  [WARN ] fallback host=edge-03</text>
     <text y="88">2026-05-22 07:42:16  [ERROR] HTTP 503 mso-router</text>

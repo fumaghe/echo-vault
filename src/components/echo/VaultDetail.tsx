@@ -92,11 +92,6 @@ export function VaultDetail({
 
       <AIPromptBlock prompt={challenge.aiPrompt} />
 
-      <div className="grid gap-4">
-        {challenge.splunkQueries.map((q, i) => (
-          <QueryBlock key={i} title={q.title} query={q.query} />
-        ))}
-      </div>
 
       <ValidationPanel
         challenge={challenge}

@@ -19,7 +19,7 @@ export type Challenge = {
   extra?: string;
 };
 
-export const FINAL_CODE = "MS-E3-42-V27-HY-AP";
+export const FINAL_CODE = "MR-E3-42-V27-HY-AP";
 export const VAULT_KEY = "MILO-042";
 export const FACILITATOR_CODE = "ECHO-ADMIN";
 
@@ -38,25 +38,18 @@ export const challenges: Challenge[] = [
     ],
     objective:
       "Identificare il servizio che presenta il peggior rapporto tra errori e volume totale.",
-    dataset: ["tmp_echo_diag.csv", "echo_diag.csv"],
-    aiPrompt: `Agisci come un Incident Analyst.
+    dataset: ["tmp_echo_diag.csv"],
+    aiPrompt: `Sono composto da due parole.
+La prima sembra un acronimo.
+La seconda decide dove mandare il traffico.
+Se prendi le iniziali della mia identità,
+ottieni il primo frammento.
 
-Ti passo una tabella Splunk con:
-service, total_events, error_events, avg_latency, error_rate.
-
-Devi spiegare quale servizio è più sospetto.
-
-Dividi la risposta in:
-1. Evidenze oggettive
-2. Ipotesi
-3. Perché il volume totale non basta
-4. Query successive consigliate
-
-Non inventare dati non presenti.`,
+Chi sono?`,
     splunkQueries: [
       {
         title: "Error rate per servizio",
-        query: `| inputlookup echo_diag.csv
+        query: `| inputlookup tmp_echo_diag.csv
 | eval clean_status=upper(trim(status))
 | eval is_error=if(clean_status="KO" OR clean_status="ERROR" OR clean_status="FAIL" OR clean_status="FAILED" OR error_code!="200",1,0)
 | stats count as total_events sum(is_error) as error_events avg(latency_ms) as avg_latency by service
@@ -65,7 +58,7 @@ Non inventare dati non presenti.`,
       },
     ],
     expectedAnswers: ["mso-router", "mso_router", "msorouter"],
-    expectedFragment: "MS",
+    expectedFragment: "MR",
     hints: ["Il servizio più rumoroso non è sempre quello più fragile."],
     successMessage: "Servizio identificato: mso-router.",
   },
@@ -80,31 +73,22 @@ Non inventare dati non presenti.`,
       "I log grezzi sono stati esportati in emergenza. Il parser ufficiale non funziona.",
       "Tutti gli eventi sono finiti dentro una singola colonna. Prima di capire cosa è successo, bisogna ricostruire il linguaggio dei log.",
       "Problemi noti: separatori incoerenti, timestamp in formati diversi, host scritti in modi diversi, ticket scritti in modi diversi, BB_ID scritti in modi diversi, latency a volte non numerica.",
-      "edge-03, edge03, EDGE_03: tre maschere, un solo nodo.",
+      "Consiglio: Usate l'AI ;)",
     ],
     objective:
       "Normalizzare i log e identificare l'host più coinvolto negli errori del servizio sospetto.",
-    dataset: ["tmp_echo_logs.csv", "echo_logs_raw.csv"],
-    aiPrompt: `Ho un CSV Splunk lookup con una colonna raw_event contenente log sporchi.
+    dataset: ["tmp_echo_logs.csv"],
+    aiPrompt: `Ho un nome con un trattino.
+Ma nei log perdo spesso il trattino.
+A volte urlo in maiuscolo.
+A volte mi scrivono tutto attaccato.
+Sono il bordo dove Echo inciampa.
 
-Esempi:
-- svc=mso-router|host=edge-03|sev=ERROR|code=503
-- service : MSO Router host=edge03 severity=err http=503
-- service=mso_router;node=edge_03;level=ERROR;http_code=503
-
-Scrivimi una strategia SPL per normalizzare:
-service
-host
-severity
-http_code
-latency_ms
-
-Usa eval, rex, match e case.
-Non inserire commenti nella SPL.`,
+Prendi la mia iniziale e il mio numero.`,
     splunkQueries: [
       {
         title: "Normalizzazione log e top host",
-        query: `| inputlookup echo_logs_raw.csv
+        query: `| inputlookup tmp_echo_logs.csv
 | eval raw=raw_event
 | eval service=case(match(raw,"(?i)mso[\\s_-]?router"),"mso-router",match(raw,"(?i)billing[\\s_-]?gateway"),"billing-gateway",match(raw,"(?i)auth-api"),"auth-api",match(raw,"(?i)telemetry-ingestor"),"telemetry-ingestor",match(raw,"(?i)customer-portal"),"customer-portal",match(raw,"(?i)notification-service"),"notification-service",1=1,"unknown")
 | eval host=case(match(raw,"(?i)edge[-_ ]?03"),"edge-03",match(raw,"(?i)edge[-_ ]?02"),"edge-02",match(raw,"(?i)edge[-_ ]?01"),"edge-01",match(raw,"(?i)app-07"),"app-07",match(raw,"(?i)app-11"),"app-11",match(raw,"(?i)ingest-02"),"ingest-02",1=1,"unknown")
@@ -135,22 +119,17 @@ Non inserire commenti nella SPL.`,
       "Il ticket fantasma non è duplicato per errore. È duplicato perché nessuno lo ha normalizzato.",
     ],
     objective: "Identificare il ticket principale e il BB_ID collegato.",
-    dataset: ["echo_tickets.csv", "echo_logs_raw.csv"],
-    aiPrompt: `Ti passo risultati Splunk su:
-ticket_id, hits, BB_ID, http_codes, descriptions.
+    dataset: ["tmp_echo_tickets.csv", "tmp_echo_logs.csv"],
+    aiPrompt: `Sono dentro un ticket.
+Sono dentro un BB_ID.
+Sono anche il numero che torna quando il formato cambia.
 
-Devi capire quale ticket è probabilmente collegato all'incidente.
-
-Regole:
-- Non inventare dati
-- Evidenzia il ticket più ricorrente
-- Evidenzia problemi di data quality
-- Spiega se il ticket sembra causa, effetto o contenitore dell'incidente
-- Suggerisci la prossima query Splunk`,
+Se trovi l’incidente giusto e il broadband giusto,
+prendi solo le ultime due cifre più importanti.`,
     splunkQueries: [
       {
         title: "Correlazione ticket / BB_ID",
-        query: `| inputlookup echo_logs_raw.csv
+        query: `| inputlookup tmp_echo_logs.csv
 | eval raw=raw_event
 | eval service=case(match(raw,"(?i)mso[\\s_-]?router"),"mso-router",1=1,"unknown")
 | eval host=case(match(raw,"(?i)edge[-_ ]?03"),"edge-03",1=1,"unknown")
@@ -194,33 +173,16 @@ Regole:
       "Non sono previste interruzioni di servizio. Se compaiono anomalie sui route owner, verificare prima i mapping legacy.",
     ],
     objective: "Capire se esiste una correlazione temporale tra deploy ed errori.",
-    dataset: ["echo_deployments.csv", "echo_diag.csv"],
-    aiPrompt: `Ho una timeline con eventi prima e dopo un deploy.
+    dataset: ["tmp_echo_diag.csv"],
+    aiPrompt: `Sono arrivata alle 07:42.
+Dovevo solo pulire una validazione.
+Ma dopo il mio arrivo, il traffico ha iniziato a cadere.
 
-I campi sono:
-period, deployment_version, total_events, error_events, avg_latency, error_rate.
-
-Scrivi una root cause hypothesis prudente.
-
-Devi distinguere:
-- correlazione temporale
-- evidenze tecniche
-- cosa manca per confermare causalità
-- azione consigliata immediata
-
-Non dire che la causa è certa se i dati mostrano solo correlazione.`,
+Sono breve, comincio con una lettera e finisco con due numeri.`,
     splunkQueries: [
       {
-        title: "Deploy timeline",
-        query: `| inputlookup echo_deployments.csv
-| search service="mso-router" host="edge-03"
-| eval deploy_epoch=strptime(deploy_time,"%Y-%m-%d %H:%M:%S")
-| sort deploy_epoch
-| table deploy_time service host version actor change_note`,
-      },
-      {
         title: "Errori prima / dopo v27",
-        query: `| inputlookup echo_diag.csv
+        query: `| inputlookup tmp_echo_diag.csv
 | eval event_epoch=strptime(event_time,"%Y-%m-%d %H:%M:%S")
 | eval clean_status=upper(trim(status))
 | eval is_error=if(clean_status="KO" OR clean_status="ERROR" OR clean_status="FAIL" OR clean_status="FAILED" OR error_code!="200",1,0)
@@ -251,24 +213,19 @@ Non dire che la causa è certa se i dati mostrano solo correlazione.`,
     ],
     objective:
       "Verificare se il BB_ID coinvolto nell'incidente è coerente con il mapping legacy.",
-    dataset: ["echo_mapping_dirty.csv"],
-    aiPrompt: `Ti passo una tabella di mapping con:
-raw_BB_ID, normalized_BB_ID, expected_BB_ID, route_owner, preferred_host, fallback_host, quality_flag.
+    dataset: ["tmp_echo_mapping_dirty.csv"],
+    aiPrompt: `Non sono una lettera.
+Non sono un numero.
+Sono piccolo, orizzontale e spesso ignorato.
 
-Devi spiegare il rischio operativo di avere BB042 invece di BB-042.
+Se sparisco da BB-042,
+il sistema vede BB042.
 
-Collega il problema a:
-- lookup fallita
-- route_owner vuoto
-- fallback_host
-- possibili errori 503
-- data quality
-
-Scrivi la spiegazione come se fosse per un team tecnico-operativo.`,
+In inglese mi chiamano?`,
     splunkQueries: [
       {
         title: "Audit mapping legacy",
-        query: `| inputlookup echo_mapping_dirty.csv
+        query: `| inputlookup tmp_echo_mapping_dirty.csv
 | eval raw_BB_ID=upper(trim(BB_ID))
 | eval expected_BB_ID=upper(trim(normalized_expected))
 | eval bb_digits=replace(raw_BB_ID,"[^0-9]","")
@@ -300,35 +257,16 @@ Scrivi la spiegazione come se fosse per un team tecnico-operativo.`,
     objective:
       "Costruire il flow Power Automate e ottenere l'approval umano sulla remediation.",
     dataset: ["trigger fields", "mail draft", "approval connector"],
-    aiPrompt: `Sei un Incident Manager.
+    aiPrompt: `Dopo la mail corretta, puoi rispondere con un messaggio che include l’indovinello:
 
-Crea una sintesi operativa usando solo i dati forniti.
+Avete trovato il problema.
+Avete collegato i dati.
+Avete chiesto il permesso giusto.
 
-Dati:
-Team: @{triggerBody()?['team_name']}
-Service: @{triggerBody()?['service']}
-Host: @{triggerBody()?['host']}
-Ticket: @{triggerBody()?['ticket_id']}
-BB_ID: @{triggerBody()?['BB_ID']}
-Versione: @{triggerBody()?['deployment_version']}
-Mapping sporco: @{triggerBody()?['dirty_mapping']}
-Evidenze Splunk: @{triggerBody()?['splunk_evidence']}
-Ipotesi root cause: @{triggerBody()?['root_cause_hypothesis']}
-Azione consigliata: @{triggerBody()?['recommended_action']}
+L’ultimo frammento non è nei log.
+È nella decisione umana.
 
-Output richiesto:
-1. Titolo incidente
-2. Severità stimata
-3. Impatto
-4. Evidenze principali
-5. Causa probabile
-6. Azione consigliata
-7. Testo email per richiesta approval
-
-Regole:
-- Non inventare dati
-- Se qualcosa non è dimostrato, scrivi "ipotesi"
-- Usa tono operativo e chiaro`,
+Quali sono le iniziali di Approval Process?`,
     splunkQueries: [
       {
         title: "Trigger fields Power Automate",
