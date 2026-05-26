@@ -10,6 +10,9 @@ export const getRouter = () => {
     context: { queryClient },
     scrollRestoration: true,
     defaultPreloadStaleTime: 0,
+    // BASE_URL is '/' in the Cloudflare/SSR build and '/echo-vault/' in the
+    // GitHub Pages static build — keeps routing correct in both environments.
+    basepath: import.meta.env.BASE_URL,
   });
 
   return router;
