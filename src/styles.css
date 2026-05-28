@@ -137,6 +137,50 @@
 }
 .pulse-cyan { animation: neonPulse 3s ease-in-out infinite; }
 
+/* Safe render mode: default on GitHub Pages unless ?effects=1 is present.
+   This removes the effects most likely to saturate Chrome's compositor/main thread
+   on large cards: backdrop-filter, scanline overlays, infinite CSS animations, and
+   animated glow shadows. */
+.safe-render *,
+.safe-render *::before,
+.safe-render *::after {
+  animation: none !important;
+  transition-duration: 0ms !important;
+  scroll-behavior: auto !important;
+}
+
+.safe-render body {
+  background-image:
+    radial-gradient(circle at 20% 10%, oklch(0.25 0.1 220 / 0.22), transparent 36%),
+    radial-gradient(circle at 80% 80%, oklch(0.25 0.15 280 / 0.18), transparent 36%);
+}
+
+.safe-render .glass {
+  backdrop-filter: none !important;
+  background: oklch(0.16 0.04 260 / 0.92) !important;
+  box-shadow: none !important;
+}
+
+.safe-render .glass-neon,
+.safe-render .glass-cyan,
+.safe-render .glass-red,
+.safe-render .pulse-cyan {
+  box-shadow: none !important;
+}
+
+.safe-render .scanlines::before {
+  display: none !important;
+}
+
+.safe-render .glitch {
+  text-shadow: 0 0 2px var(--color-cyan) !important;
+  transform: none !important;
+}
+
+.safe-render .cursor::after {
+  animation: none !important;
+}
+
 /* Hide scrollbar in terminal */
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; }
