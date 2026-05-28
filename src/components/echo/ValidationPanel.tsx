@@ -1,16 +1,142 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Challenge } from "@/data/workshop";
 import { fragmentMatches, singleAnswerMatch } from "@/lib/echo";
 import { echoStage } from "@/lib/stages";
 
 type Status = "idle" | "checking" | "ok" | "ko";
 
-const inputClassName =
-  "h-11 w-full rounded-md border border-[color:var(--color-border)] bg-black/30 px-3 py-2 font-mono text-sm text-white outline-none placeholder:text-slate-500 focus:border-[color:var(--color-cyan)] disabled:cursor-not-allowed disabled:opacity-50";
+type ValidationMessage = {
+  type: "echo-validation-submit";
+  challengeId: string;
+  answer: string;
+  fragment: string;
+};
 
-function getInlineInputsFlag(): boolean {
-  if (typeof window === "undefined") return false;
-  return new URLSearchParams(window.location.search).get("inlineInputs") === "1";
+function escapeHtml(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function createValidationFrameSrcDoc(challengeId: string, alreadySolved: boolean): string {
+  const safeChallengeId = escapeHtml(challengeId);
+  const disabledAttr = alreadySolved ? "disabled" : "";
+
+  return `<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    color-scheme: dark;
+    --cyan: #22d3ee;
+    --border: rgba(34, 211, 238, .28);
+    --panel: rgba(0, 0, 0, .20);
+    --field: rgba(0, 0, 0, .32);
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --quiet: #475569;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: transparent;
+    color: var(--text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  }
+  body { padding: 0; overflow: hidden; }
+  form { display: grid; gap: 12px; }
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; }
+  @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } body { overflow: auto; } }
+  label {
+    display: block;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel);
+    padding: 12px;
+  }
+  span {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--muted);
+    font-size: 12px;
+  }
+  input {
+    width: 100%;
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--field);
+    color: var(--text);
+    outline: none;
+    padding: 0 12px;
+    font: inherit;
+    font-size: 14px;
+  }
+  input::placeholder { color: var(--quiet); }
+  input:focus { border-color: var(--cyan); box-shadow: 0 0 0 1px rgba(34, 211, 238, .18); }
+  input:disabled { cursor: not-allowed; opacity: .55; }
+  .fragment { text-transform: uppercase; }
+  .actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  button {
+    height: 44px;
+    border: 0;
+    border-radius: 7px;
+    background: var(--cyan);
+    color: #020617;
+    font: inherit;
+    font-size: 14px;
+    padding: 0 18px;
+    cursor: pointer;
+  }
+  button:hover { filter: brightness(.92); }
+  button:disabled { cursor: not-allowed; opacity: .55; }
+  .hint { color: var(--quiet); font-size: 10px; text-transform: uppercase; letter-spacing: .12em; }
+</style>
+</head>
+<body>
+<form id="validation-form" autocomplete="off">
+  <div class="grid">
+    <label>
+      <span>Risposta investigativa</span>
+      <input id="answer" name="answer" type="text" placeholder="es. service-name, host, ticket…" ${disabledAttr} autofocus />
+    </label>
+    <label>
+      <span>Frammento cassaforte</span>
+      <input id="fragment" class="fragment" name="fragment" type="text" maxlength="4" placeholder="2-3 CARATTERI" ${disabledAttr} />
+    </label>
+  </div>
+  <div class="actions">
+    <button type="submit" ${disabledAttr}>▱ Valida frammento</button>
+    <div class="hint">isolated input console</div>
+  </div>
+</form>
+<script>
+  const challengeId = "${safeChallengeId}";
+  const form = document.getElementById("validation-form");
+  const answer = document.getElementById("answer");
+  const fragment = document.getElementById("fragment");
+
+  fragment.addEventListener("input", () => {
+    fragment.value = fragment.value.toUpperCase().slice(0, 4);
+  });
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    window.parent.postMessage({
+      type: "echo-validation-submit",
+      challengeId,
+      answer: answer.value,
+      fragment: fragment.value,
+    }, "*");
+  });
+</script>
+</body>
+</html>`;
 }
 
 export function ValidationPanel({
@@ -24,32 +150,14 @@ export function ValidationPanel({
 }) {
   echoStage(`ValidationPanel-${challenge.id}-render`);
 
-  const inlineInputs = useMemo(() => getInlineInputsFlag(), []);
-  const answerRef = useRef<HTMLInputElement>(null);
-  const fragmentRef = useRef<HTMLInputElement>(null);
-  const [promptAnswer, setPromptAnswer] = useState("");
-  const [promptFragment, setPromptFragment] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState<string>("");
+  const frameSrcDoc = useMemo(
+    () => createValidationFrameSrcDoc(challenge.id, alreadySolved),
+    [challenge.id, alreadySolved],
+  );
 
-  const answer = inlineInputs ? (answerRef.current?.value ?? "") : promptAnswer;
-  const fragment = inlineInputs ? (fragmentRef.current?.value ?? "") : promptFragment;
-
-  const askAnswer = () => {
-    if (alreadySolved) return;
-    echoStage(`ValidationPanel-${challenge.id}-prompt-answer`);
-    const next = window.prompt("Risposta investigativa", promptAnswer || "");
-    if (next !== null) setPromptAnswer(next.trim());
-  };
-
-  const askFragment = () => {
-    if (alreadySolved) return;
-    echoStage(`ValidationPanel-${challenge.id}-prompt-fragment`);
-    const next = window.prompt("Frammento cassaforte", promptFragment || "");
-    if (next !== null) setPromptFragment(next.trim().toUpperCase().slice(0, 4));
-  };
-
-  const validate = () => {
+  const validate = (answer: string, fragment: string) => {
     if (alreadySolved) return;
 
     echoStage(`ValidationPanel-${challenge.id}-validate`);
@@ -81,107 +189,41 @@ export function ValidationPanel({
     }, 250);
   };
 
+  useEffect(() => {
+    const onMessage = (event: MessageEvent<ValidationMessage>) => {
+      if (!event.data || event.data.type !== "echo-validation-submit") return;
+      if (event.data.challengeId !== challenge.id) return;
+      validate(event.data.answer, event.data.fragment);
+    };
+
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+    // validate intentionally omitted: it closes over current challenge and callbacks.
+    // The listener is recreated when challenge/alreadySolved changes.
+  }, [challenge.id, alreadySolved]);
+
   return (
     <div className="glass rounded-md p-4 space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="text-xs uppercase tracking-widest text-[color:var(--color-cyan)]">
           Validation Console
         </div>
-        {!inlineInputs && (
-          <div className="text-[10px] uppercase tracking-widest text-slate-500">
-            safe prompt mode
-          </div>
-        )}
+        <div className="text-[10px] uppercase tracking-widest text-slate-500">
+          isolated input mode
+        </div>
       </div>
 
-      {inlineInputs ? (
-        <div className="grid sm:grid-cols-2 gap-3">
-          <label className="block">
-            <span className="block text-xs text-slate-400 mb-1">Risposta investigativa</span>
-            <input
-              ref={answerRef}
-              type="text"
-              autoComplete="off"
-              autoCorrect="off"
-              spellCheck={false}
-              disabled={alreadySolved}
-              placeholder="es. service-name, host, ticket…"
-              className={inputClassName}
-              onFocus={() => echoStage(`ValidationPanel-${challenge.id}-answer-focus`)}
-              onInput={() => echoStage(`ValidationPanel-${challenge.id}-answer-input`)}
-            />
-          </label>
+      <iframe
+        title={`Validation Console ${challenge.id}`}
+        srcDoc={frameSrcDoc}
+        sandbox="allow-scripts allow-forms"
+        className="block w-full rounded-md border-0 bg-transparent"
+        style={{ height: 160 }}
+      />
 
-          <label className="block">
-            <span className="block text-xs text-slate-400 mb-1">Frammento cassaforte</span>
-            <input
-              ref={fragmentRef}
-              type="text"
-              autoComplete="off"
-              autoCorrect="off"
-              spellCheck={false}
-              disabled={alreadySolved}
-              maxLength={4}
-              placeholder="2-3 CARATTERI"
-              className={`${inputClassName} uppercase`}
-              onFocus={() => echoStage(`ValidationPanel-${challenge.id}-fragment-focus`)}
-              onInput={(event) => {
-                const input = event.currentTarget;
-                const next = input.value.toUpperCase().slice(0, 4);
-                if (input.value !== next) input.value = next;
-                echoStage(`ValidationPanel-${challenge.id}-fragment-input`);
-              }}
-            />
-          </label>
-        </div>
-      ) : (
-        <div className="grid sm:grid-cols-2 gap-3">
-          <div className="rounded-md border border-[color:var(--color-border)] bg-black/20 p-3 space-y-2">
-            <div className="text-xs text-slate-400">Risposta investigativa</div>
-            <div className="min-h-8 rounded bg-black/30 px-3 py-2 font-mono text-sm text-white break-all">
-              {promptAnswer || <span className="text-slate-600">non inserita</span>}
-            </div>
-            <button
-              type="button"
-              onClick={askAnswer}
-              disabled={alreadySolved}
-              className="rounded border border-[color:var(--color-border)] px-3 py-2 text-xs text-[color:var(--color-cyan)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Inserisci risposta
-            </button>
-          </div>
-
-          <div className="rounded-md border border-[color:var(--color-border)] bg-black/20 p-3 space-y-2">
-            <div className="text-xs text-slate-400">Frammento cassaforte</div>
-            <div className="min-h-8 rounded bg-black/30 px-3 py-2 font-mono text-sm uppercase text-white break-all">
-              {promptFragment || <span className="text-slate-600">non inserito</span>}
-            </div>
-            <button
-              type="button"
-              onClick={askFragment}
-              disabled={alreadySolved}
-              className="rounded border border-[color:var(--color-border)] px-3 py-2 text-xs text-[color:var(--color-cyan)] hover:text-white disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Inserisci frammento
-            </button>
-          </div>
-        </div>
+      {status === "checking" && (
+        <span className="text-xs text-[color:var(--color-cyan)]">DECRYPTING</span>
       )}
-
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={validate}
-          disabled={alreadySolved}
-          className="inline-flex h-11 items-center gap-2 rounded-md bg-[color:var(--color-cyan)] px-5 font-mono text-sm text-black hover:bg-[color:var(--color-cyan)]/80 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <span aria-hidden="true">▱</span>
-          {alreadySolved ? "Cassaforte già aperta" : "Valida frammento"}
-        </button>
-        {status === "checking" && (
-          <span className="text-xs text-[color:var(--color-cyan)]">DECRYPTING</span>
-        )}
-      </div>
 
       {status === "ok" && (
         <div className="flex items-start gap-2 text-[color:var(--color-neon)] text-sm font-mono">
@@ -203,12 +245,9 @@ export function ValidationPanel({
         </div>
       )}
 
-      {!inlineInputs && (
-        <div className="text-[10px] text-slate-600">
-          I campi inline sono disabilitati per evitare il freeze su Chrome/GitHub Pages. Per testarli:
-          aggiungi <span className="font-mono">?inlineInputs=1</span>.
-        </div>
-      )}
+      <div className="text-[10px] text-slate-600">
+        Gli input sono isolati in un iframe per evitare il freeze su Chrome/GitHub Pages.
+      </div>
     </div>
   );
 }
