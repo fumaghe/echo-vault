@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export function TerminalPanel({
   lines,
@@ -16,6 +16,15 @@ export function TerminalPanel({
   const [lineIdx, setLineIdx] = useState(0);
   const [charIdx, setCharIdx] = useState(0);
 
+  // Keep a ref so Effect 2 always calls the latest onDone without being in its deps.
+  // Without this, an inline `onDone` prop (new reference every render) re-triggers
+  // Effect 2 when lineIdx is already >= lines.length, causing onDone to fire again
+  // and the terminal to restart.
+  const onDoneRef = useRef(onDone);
+  useEffect(() => {
+    onDoneRef.current = onDone;
+  });
+
   useEffect(() => {
     setShown([]);
     setCurrent("");
@@ -25,7 +34,7 @@ export function TerminalPanel({
 
   useEffect(() => {
     if (lineIdx >= lines.length) {
-      onDone?.();
+      onDoneRef.current?.();
       return;
     }
     const line = lines[lineIdx];
@@ -41,7 +50,7 @@ export function TerminalPanel({
       setCharIdx(0);
       setLineIdx((i) => i + 1);
     }
-  }, [lineIdx, charIdx, lines, speed, onDone]);
+  }, [lineIdx, charIdx, lines, speed]); // onDone intentionally omitted — accessed via ref
 
   return (
     <div
