@@ -1,12 +1,12 @@
-import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ShieldCheck, ShieldAlert, Unlock } from "lucide-react";
+import { useRef, useState } from "react";
 import type { Challenge } from "@/data/workshop";
 import { fragmentMatches, singleAnswerMatch } from "@/lib/echo";
+import { echoStage } from "@/lib/stages";
 
 type Status = "idle" | "checking" | "ok" | "ko";
+
+const inputClassName =
+  "h-11 w-full rounded-md border border-[color:var(--color-border)] bg-black/30 px-3 py-2 font-mono text-sm text-white outline-none placeholder:text-slate-500 focus:border-[color:var(--color-cyan)] disabled:cursor-not-allowed disabled:opacity-50";
 
 export function ValidationPanel({
   challenge,
@@ -17,36 +17,49 @@ export function ValidationPanel({
   alreadySolved: boolean;
   onSolved: (fragment: string) => void;
 }) {
-  const [answer, setAnswer] = useState("");
-  const [fragment, setFragment] = useState("");
+  echoStage(`ValidationPanel-${challenge.id}-render`);
+
+  // Use native uncontrolled inputs here on purpose.
+  // On GitHub Pages/Chrome, the controlled shadcn Input + motion feedback subtree could
+  // freeze the page on keypress. Keeping keystrokes outside React state avoids a render
+  // on every character and isolates validation to the button click.
+  const answerRef = useRef<HTMLInputElement>(null);
+  const fragmentRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState<string>("");
 
   const validate = () => {
     if (alreadySolved) return;
+
+    echoStage(`ValidationPanel-${challenge.id}-validate`);
     setStatus("checking");
     setMessage("DECRYPTING…");
-    setTimeout(() => {
+
+    window.setTimeout(() => {
+      const answer = answerRef.current?.value ?? "";
+      const fragment = fragmentRef.current?.value ?? "";
       const ansOk = singleAnswerMatch(answer, challenge.expectedAnswers);
       const fragOk = fragmentMatches(fragment, challenge.expectedFragment);
+
       if (ansOk && fragOk) {
         setStatus("ok");
         setMessage("FRAGMENT ACCEPTED — " + challenge.successMessage);
-        setTimeout(() => onSolved(challenge.expectedFragment), 700);
-      } else {
-        setStatus("ko");
-        const hint = challenge.hints[0] ?? "Riprovare con maggiore attenzione.";
-        setMessage(
-          `ACCESS DENIED — ${
-            !ansOk && !fragOk
-              ? "risposta e frammento non corretti."
-              : !ansOk
-                ? "risposta investigativa non corretta."
-                : "frammento non corretto."
-          } Hint: ${hint}`,
-        );
+        window.setTimeout(() => onSolved(challenge.expectedFragment), 700);
+        return;
       }
-    }, 500);
+
+      setStatus("ko");
+      const hint = challenge.hints[0] ?? "Riprovare con maggiore attenzione.";
+      setMessage(
+        `ACCESS DENIED — ${
+          !ansOk && !fragOk
+            ? "risposta e frammento non corretti."
+            : !ansOk
+              ? "risposta investigativa non corretta."
+              : "frammento non corretto."
+        } Hint: ${hint}`,
+      );
+    }, 250);
   };
 
   return (
@@ -58,67 +71,71 @@ export function ValidationPanel({
       <div className="grid sm:grid-cols-2 gap-3">
         <label className="block">
           <span className="block text-xs text-slate-400 mb-1">Risposta investigativa</span>
-          <Input
-            value={answer}
+          <input
+            ref={answerRef}
+            type="text"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
             disabled={alreadySolved}
-            onChange={(e) => setAnswer(e.target.value)}
             placeholder="es. service-name, host, ticket…"
-            className="font-mono bg-black/30 border-[color:var(--color-border)] text-white"
+            className={inputClassName}
+            onFocus={() => echoStage(`ValidationPanel-${challenge.id}-answer-focus`)}
+            onInput={() => echoStage(`ValidationPanel-${challenge.id}-answer-input`)}
           />
         </label>
+
         <label className="block">
           <span className="block text-xs text-slate-400 mb-1">Frammento cassaforte</span>
-          <Input
-            value={fragment}
+          <input
+            ref={fragmentRef}
+            type="text"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
             disabled={alreadySolved}
-            onChange={(e) => setFragment(e.target.value.toUpperCase())}
-            placeholder="2-3 caratteri"
-            className="font-mono uppercase bg-black/30 border-[color:var(--color-border)] text-white"
+            maxLength={4}
+            placeholder="2-3 CARATTERI"
+            className={`${inputClassName} uppercase`}
+            onFocus={() => echoStage(`ValidationPanel-${challenge.id}-fragment-focus`)}
+            onInput={(event) => {
+              const input = event.currentTarget;
+              const next = input.value.toUpperCase().slice(0, 4);
+              if (input.value !== next) input.value = next;
+              echoStage(`ValidationPanel-${challenge.id}-fragment-input`);
+            }}
           />
         </label>
       </div>
 
       <div className="flex items-center gap-3">
-        <Button
+        <button
+          type="button"
           onClick={validate}
           disabled={alreadySolved}
-          className="gap-2 bg-[color:var(--color-cyan)] text-black hover:bg-[color:var(--color-cyan)]/80"
+          className="inline-flex h-11 items-center gap-2 rounded-md bg-[color:var(--color-cyan)] px-5 font-mono text-sm text-black hover:bg-[color:var(--color-cyan)]/80 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <Unlock className="size-4" />
+          <span aria-hidden="true">▱</span>
           {alreadySolved ? "Cassaforte già aperta" : "Valida frammento"}
-        </Button>
+        </button>
         {status === "checking" && (
-          <span className="text-xs text-[color:var(--color-cyan)] cursor">DECRYPTING</span>
+          <span className="text-xs text-[color:var(--color-cyan)]">DECRYPTING</span>
         )}
       </div>
 
-      <AnimatePresence>
-        {status === "ok" && (
-          <motion.div
-            key="ok"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            className="flex items-start gap-2 text-[color:var(--color-neon)] text-sm font-mono"
-          >
-            <ShieldCheck className="size-4 mt-0.5" />
-            <span>{message}</span>
-          </motion.div>
-        )}
-        {status === "ko" && (
-          <motion.div
-            key="ko"
-            initial={{ opacity: 0, x: -4 }}
-            animate={{ opacity: 1, x: [0, -4, 4, -2, 2, 0] }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-            className="flex items-start gap-2 text-[color:var(--color-alert)] text-sm font-mono"
-          >
-            <ShieldAlert className="size-4 mt-0.5" />
-            <span>{message}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {status === "ok" && (
+        <div className="flex items-start gap-2 text-[color:var(--color-neon)] text-sm font-mono">
+          <span aria-hidden="true">✓</span>
+          <span>{message}</span>
+        </div>
+      )}
+
+      {status === "ko" && (
+        <div className="flex items-start gap-2 text-[color:var(--color-alert)] text-sm font-mono">
+          <span aria-hidden="true">!</span>
+          <span>{message}</span>
+        </div>
+      )}
 
       {alreadySolved && (
         <div className="text-xs text-[color:var(--color-neon)] font-mono">
