@@ -16,16 +16,19 @@ export function TerminalPanel({
   const [lineIdx, setLineIdx] = useState(0);
   const [charIdx, setCharIdx] = useState(0);
 
-  // Keep a ref so Effect 2 always calls the latest onDone without being in its deps.
-  // Without this, an inline `onDone` prop (new reference every render) re-triggers
-  // Effect 2 when lineIdx is already >= lines.length, causing onDone to fire again
-  // and the terminal to restart.
+  // Keep a ref so the animation effect always calls the latest onDone without
+  // including it in deps (avoids restart when the prop reference changes).
   const onDoneRef = useRef(onDone);
   useEffect(() => {
     onDoneRef.current = onDone;
   });
 
+  // Guard: fire onDone exactly once per animation run, even if the parent re-renders
+  // while lineIdx >= lines.length.
+  const doneFiredRef = useRef(false);
+
   useEffect(() => {
+    doneFiredRef.current = false;
     setShown([]);
     setCurrent("");
     setLineIdx(0);
@@ -34,7 +37,10 @@ export function TerminalPanel({
 
   useEffect(() => {
     if (lineIdx >= lines.length) {
-      onDoneRef.current?.();
+      if (!doneFiredRef.current) {
+        doneFiredRef.current = true;
+        onDoneRef.current?.();
+      }
       return;
     }
     const line = lines[lineIdx];
@@ -60,11 +66,11 @@ export function TerminalPanel({
       }
     >
       {shown.map((l, i) => (
-        <div key={i} className="whitespace-pre-wrap">{l || "\u00A0"}</div>
+        <div key={i} className="whitespace-pre-wrap">
+          {l || "\u00A0"}
+        </div>
       ))}
-      {lineIdx < lines.length && (
-        <div className="whitespace-pre-wrap cursor">{current}</div>
-      )}
+      {lineIdx < lines.length && <div className="whitespace-pre-wrap cursor">{current}</div>}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { challenges } from "@/data/workshop";
 
 const KEY = "echo-noc-progress-v1";
@@ -17,13 +17,21 @@ const empty: Progress = {
   finalSolved: false,
 };
 
-function load(): Progress {
+function safeLoad(): Progress {
   if (typeof window === "undefined") return empty;
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return empty;
-    return { ...empty, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return empty;
+    return { ...empty, ...parsed };
   } catch {
+    // Corrupted storage — reset silently
+    try {
+      localStorage.removeItem(KEY);
+    } catch {
+      // removeItem can fail in private-browsing mode — ignore
+    }
     return empty;
   }
 }
@@ -33,31 +41,41 @@ export function useProgress() {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    setProgress(load());
+    setProgress(safeLoad());
     setReady(true);
   }, []);
 
-  const persist = useCallback((next: Progress) => {
-    setProgress(next);
+  // Persist to localStorage whenever progress changes (skip the initial hydration).
+  const isFirstPersist = useRef(true);
+  useEffect(() => {
+    if (!ready) return;
+    if (isFirstPersist.current) {
+      isFirstPersist.current = false;
+      return;
+    }
     try {
-      localStorage.setItem(KEY, JSON.stringify(next));
-    } catch {}
-  }, []);
+      localStorage.setItem(KEY, JSON.stringify(progress));
+    } catch {
+      // localStorage unavailable (private mode, quota exceeded) — ignore
+    }
+  }, [progress, ready]);
 
-  const markSolved = useCallback(
-    (id: string, fragment: string) => {
+  // Functional updates avoid stale-closure bugs and keep callbacks stable.
+  const markSolved = useCallback((id: string, fragment: string) => {
+    setProgress((prev) => {
       const next: Progress = {
-        ...progress,
-        solved: { ...progress.solved, [id]: true },
-        fragments: { ...progress.fragments, [id]: fragment },
+        ...prev,
+        solved: { ...prev.solved, [id]: true },
+        fragments: { ...prev.fragments, [id]: fragment },
       };
       const allSolved = challenges.every((c) => next.solved[c.id]);
       if (allSolved) next.finalUnlocked = true;
-      persist(next);
-    },
-    [progress, persist],
-  );
+      return next;
+    });
+  }, []);
 
+  // isUnlocked intentionally keeps [progress] in deps: it must read live progress
+  // so that vault cards update immediately after each solve.
   const isUnlocked = useCallback(
     (id: string) => {
       const idx = challenges.findIndex((c) => c.id === id);
@@ -68,7 +86,7 @@ export function useProgress() {
     [progress],
   );
 
-  const reset = useCallback(() => persist(empty), [persist]);
+  const reset = useCallback(() => setProgress(empty), []);
 
   const unlockAll = useCallback(() => {
     const solved: Record<string, boolean> = {};
@@ -77,13 +95,12 @@ export function useProgress() {
       solved[c.id] = true;
       fragments[c.id] = c.expectedFragment;
     });
-    persist({ solved, fragments, finalUnlocked: true, finalSolved: true });
-  }, [persist]);
+    setProgress({ solved, fragments, finalUnlocked: true, finalSolved: true });
+  }, []);
 
-  const setFinalSolved = useCallback(
-    (v: boolean) => persist({ ...progress, finalSolved: v, finalUnlocked: true }),
-    [progress, persist],
-  );
+  const setFinalSolved = useCallback((v: boolean) => {
+    setProgress((prev) => ({ ...prev, finalSolved: v, finalUnlocked: true }));
+  }, []);
 
   const fragmentsCount = challenges.filter((c) => progress.solved[c.id]).length;
 

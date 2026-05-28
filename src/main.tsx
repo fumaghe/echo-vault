@@ -6,6 +6,11 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "@tanstack/react-router";
 import { getRouter } from "./router";
+import { ErrorBoundary } from "./components/echo/ErrorBoundary";
+import { DebugPanel } from "./components/echo/DebugPanel";
+import { initGlobalErrorHandlers } from "./lib/debug";
+
+initGlobalErrorHandlers();
 
 const router = getRouter();
 
@@ -14,6 +19,9 @@ if (!rootElement) throw new Error("Root element #root not found");
 
 createRoot(rootElement).render(
   <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>
+    <ErrorBoundary>
+      <RouterProvider router={router} />
+      <DebugPanel />
+    </ErrorBoundary>
+  </StrictMode>,
 );
