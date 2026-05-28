@@ -31,13 +31,13 @@ function q(name: string): boolean {
 }
 
 export const flags = {
-  minimal:     q("minimal"),
-  noMotion:    q("noMotion"),
-  noImages:    q("noImages"),
-  noHeader:    q("noHeader"),
+  minimal: q("minimal"),
+  noMotion: q("noMotion"),
+  noImages: q("noImages"),
+  noHeader: q("noHeader"),
   noDashboard: q("noDashboard"),
-  noVault:     q("noVault"),
-  debugPerf:   q("debugPerf"),
-  fastIntro:   q("fastIntro"),
-  effects:     q("effects"),
+  noVault: q("noVault"),
+  debugPerf: q("debugPerf"),
+  fastIntro: q("fastIntro"),
+  effects: q("effects"),
 } as const;

@@ -57,9 +57,7 @@ export function ValidationPanel({
 
       <div className="grid sm:grid-cols-2 gap-3">
         <label className="block">
-          <span className="block text-xs text-slate-400 mb-1">
-            Risposta investigativa
-          </span>
+          <span className="block text-xs text-slate-400 mb-1">Risposta investigativa</span>
           <Input
             value={answer}
             disabled={alreadySolved}
@@ -69,9 +67,7 @@ export function ValidationPanel({
           />
         </label>
         <label className="block">
-          <span className="block text-xs text-slate-400 mb-1">
-            Frammento cassaforte
-          </span>
+          <span className="block text-xs text-slate-400 mb-1">Frammento cassaforte</span>
           <Input
             value={fragment}
             disabled={alreadySolved}
@@ -92,9 +88,7 @@ export function ValidationPanel({
           {alreadySolved ? "Cassaforte già aperta" : "Valida frammento"}
         </Button>
         {status === "checking" && (
-          <span className="text-xs text-[color:var(--color-cyan)] cursor">
-            DECRYPTING
-          </span>
+          <span className="text-xs text-[color:var(--color-cyan)] cursor">DECRYPTING</span>
         )}
       </div>
 

@@ -43,12 +43,10 @@ function EchoApp() {
 
   const appContent = (
     <div className="space-y-6">
-      {!flags.noHeader && (
-        <HeaderNoc fragments={p.fragmentsCount} total={p.total} />
-      )}
+      {!flags.noHeader && <HeaderNoc fragments={p.fragmentsCount} total={p.total} />}
 
-      {view.kind === "dashboard" && (
-        flags.noDashboard ? (
+      {view.kind === "dashboard" &&
+        (flags.noDashboard ? (
           // ?noDashboard=1 — render only bare navigation, no Dashboard components
           <MinimalDashboard onOpenFinal={() => setView({ kind: "final" })} />
         ) : (
@@ -58,8 +56,7 @@ function EchoApp() {
             onOpen={openVault}
             onOpenFinal={() => setView({ kind: "final" })}
           />
-        )
-      )}
+        ))}
 
       {view.kind === "vault" &&
         (() => {
@@ -101,11 +98,7 @@ function EchoApp() {
       )}
 
       {view.kind === "reveal" && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="space-y-4"
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-4">
           <Button
             variant="ghost"
             onClick={() => setView({ kind: "dashboard" })}
@@ -119,9 +112,7 @@ function EchoApp() {
     </div>
   );
 
-  const introEl = (
-    <IntroScreen key="intro" onEnter={enterDashboard} />
-  );
+  const introEl = <IntroScreen key="intro" onEnter={enterDashboard} />;
 
   // ?noMotion=1 — remove AnimatePresence and motion wrappers from the top-level
   // transition entirely (isolates whether the motion engine is the freeze cause).
@@ -129,11 +120,7 @@ function EchoApp() {
     return (
       <div className="min-h-screen px-4 sm:px-6 py-6 max-w-6xl mx-auto">
         {view.kind === "intro" ? introEl : appContent}
-        <FacilitatorMode
-          progress={p.progress}
-          onReset={p.reset}
-          onUnlockAll={p.unlockAll}
-        />
+        <FacilitatorMode progress={p.progress} onReset={p.reset} onUnlockAll={p.unlockAll} />
       </div>
     );
   }
@@ -170,11 +157,7 @@ function EchoApp() {
         )}
       </AnimatePresence>
 
-      <FacilitatorMode
-        progress={p.progress}
-        onReset={p.reset}
-        onUnlockAll={p.unlockAll}
-      />
+      <FacilitatorMode progress={p.progress} onReset={p.reset} onUnlockAll={p.unlockAll} />
     </div>
   );
 }
@@ -187,13 +170,10 @@ function MinimalDashboard({ onOpenFinal }: { onOpenFinal: () => void }) {
         ?noDashboard=1 — minimal navigation active
       </div>
       <p className="text-sm text-slate-300">
-        Dashboard, VaultCard and FragmentChain components are disabled.
-        Use this mode to verify that the freeze does not occur without them.
+        Dashboard, VaultCard and FragmentChain components are disabled. Use this mode to verify that
+        the freeze does not occur without them.
       </p>
-      <Button
-        onClick={onOpenFinal}
-        className="bg-[color:var(--color-cyan)] text-black"
-      >
+      <Button onClick={onOpenFinal} className="bg-[color:var(--color-cyan)] text-black">
         Open Final Vault
       </Button>
     </div>
@@ -234,11 +214,7 @@ function IntroScreen({ onEnter }: { onEnter: () => void }) {
         </p>
 
         <div className="mt-6 rounded-md bg-black/40 border border-[color:var(--color-border)] p-4 min-h-[200px]">
-          <TerminalPanel
-            lines={INTRO_LINES}
-            onDone={handleDone}
-            instant={flags.fastIntro}
-          />
+          <TerminalPanel lines={INTRO_LINES} onDone={handleDone} instant={flags.fastIntro} />
         </div>
 
         <motion.div
@@ -253,11 +229,7 @@ function IntroScreen({ onEnter }: { onEnter: () => void }) {
           >
             Avvia sessione →
           </Button>
-          <Button
-            onClick={onEnter}
-            variant="ghost"
-            className="text-slate-300"
-          >
+          <Button onClick={onEnter} variant="ghost" className="text-slate-300">
             Skip intro
           </Button>
         </motion.div>

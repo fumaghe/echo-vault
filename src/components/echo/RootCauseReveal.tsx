@@ -49,9 +49,7 @@ export function RootCauseReveal() {
               className="px-3 py-1.5 rounded border border-[color:var(--color-cyan)] text-[color:var(--color-cyan)] bg-[color:var(--color-cyan)]/5"
             >
               {step}
-              {i < flow.length - 1 && (
-                <ArrowRight className="size-3 inline ml-2 text-slate-400" />
-              )}
+              {i < flow.length - 1 && <ArrowRight className="size-3 inline ml-2 text-slate-400" />}
             </motion.span>
           ))}
         </div>

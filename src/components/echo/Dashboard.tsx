@@ -18,19 +18,14 @@ export function Dashboard({
 }) {
   const finalReady = progress.finalUnlocked;
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
-    >
+    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
       <div className="text-center sm:text-left">
         <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-          OPERAZIONE ECHO —{" "}
-          <span className="text-[color:var(--color-cyan)]">INCIDENT VAULT</span>
+          OPERAZIONE ECHO — <span className="text-[color:var(--color-cyan)]">INCIDENT VAULT</span>
         </h1>
         <p className="mt-2 text-sm text-slate-400 max-w-2xl">
-          6 casseforti. 6 prove. Ogni frammento sblocca la successiva. Solo
-          ricostruendo l'intera catena potrete aprire la Final Vault.
+          6 casseforti. 6 prove. Ogni frammento sblocca la successiva. Solo ricostruendo l'intera
+          catena potrete aprire la Final Vault.
         </p>
       </div>
 
@@ -40,11 +35,7 @@ export function Dashboard({
         {challenges.map((c, i) => {
           const solved = !!progress.solved[c.id];
           const unlocked = isUnlocked(c.id);
-          const status: VaultStatus = solved
-            ? "SOLVED"
-            : unlocked
-              ? "AVAILABLE"
-              : "LOCKED";
+          const status: VaultStatus = solved ? "SOLVED" : unlocked ? "AVAILABLE" : "LOCKED";
           return (
             <VaultCard
               key={c.id}
@@ -64,18 +55,12 @@ export function Dashboard({
         disabled={!finalReady}
         onClick={onOpenFinal}
         className={`w-full glass rounded-lg p-6 text-left relative scanlines transition ${
-          finalReady
-            ? "glass-neon hover:translate-y-[-2px]"
-            : "opacity-60 cursor-not-allowed"
+          finalReady ? "glass-neon hover:translate-y-[-2px]" : "opacity-60 cursor-not-allowed"
         }`}
       >
         <div className="flex items-center gap-3">
           <Vault
-            className={`size-6 ${
-              finalReady
-                ? "text-[color:var(--color-neon)]"
-                : "text-slate-500"
-            }`}
+            className={`size-6 ${finalReady ? "text-[color:var(--color-neon)]" : "text-slate-500"}`}
           />
           <div>
             <div className="text-xs uppercase tracking-widest text-[color:var(--color-cyan)]">
