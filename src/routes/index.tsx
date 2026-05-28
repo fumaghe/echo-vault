@@ -6,6 +6,8 @@ import { Terminal } from "lucide-react";
 
 import { useProgress } from "@/hooks/useProgress";
 import { challengeById } from "@/lib/echo";
+import { flags } from "@/lib/flags";
+import { echoStage } from "@/lib/stages";
 import { HeaderNoc } from "@/components/echo/HeaderNoc";
 import { Dashboard } from "@/components/echo/Dashboard";
 import { VaultDetail } from "@/components/echo/VaultDetail";
@@ -26,17 +28,135 @@ type View =
   | { kind: "reveal" };
 
 function EchoApp() {
+  echoStage("EchoApp-render");
   const [view, setView] = useState<View>({ kind: "intro" });
   const p = useProgress();
 
   if (!p.ready) return null;
 
+  echoStage(`EchoApp-view-${view.kind}`);
+
+  const enterDashboard = () => setView({ kind: "dashboard" });
+
+  // ?noVault=1 — prevent VaultDetail from opening (isolates vault rendering)
+  const openVault = flags.noVault ? () => {} : (id: string) => setView({ kind: "vault", id });
+
+  const appContent = (
+    <div className="space-y-6">
+      {!flags.noHeader && (
+        <HeaderNoc fragments={p.fragmentsCount} total={p.total} />
+      )}
+
+      {view.kind === "dashboard" && (
+        flags.noDashboard ? (
+          // ?noDashboard=1 — render only bare navigation, no Dashboard components
+          <MinimalDashboard onOpenFinal={() => setView({ kind: "final" })} />
+        ) : (
+          <Dashboard
+            progress={p.progress}
+            isUnlocked={p.isUnlocked}
+            onOpen={openVault}
+            onOpenFinal={() => setView({ kind: "final" })}
+          />
+        )
+      )}
+
+      {view.kind === "vault" &&
+        (() => {
+          const c = challengeById(view.id);
+          if (!c) return null;
+          echoStage(`VaultDetail-${c.id}`);
+          return (
+            <VaultDetail
+              challenge={c}
+              alreadySolved={!!p.progress.solved[c.id]}
+              onBack={() => setView({ kind: "dashboard" })}
+              onSolved={(frag) => {
+                p.markSolved(c.id, frag);
+              }}
+            />
+          );
+        })()}
+
+      {view.kind === "final" && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-4"
+        >
+          <Button
+            variant="ghost"
+            onClick={() => setView({ kind: "dashboard" })}
+            className="text-[color:var(--color-cyan)]"
+          >
+            ← Dashboard
+          </Button>
+          <FinalVault
+            fragments={p.progress.fragments}
+            finalSolved={p.progress.finalSolved}
+            onSolved={() => p.setFinalSolved(true)}
+            onReveal={() => setView({ kind: "reveal" })}
+          />
+        </motion.div>
+      )}
+
+      {view.kind === "reveal" && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="space-y-4"
+        >
+          <Button
+            variant="ghost"
+            onClick={() => setView({ kind: "dashboard" })}
+            className="text-[color:var(--color-cyan)]"
+          >
+            ← Dashboard
+          </Button>
+          <RootCauseReveal />
+        </motion.div>
+      )}
+    </div>
+  );
+
+  const introEl = (
+    <IntroScreen key="intro" onEnter={enterDashboard} />
+  );
+
+  // ?noMotion=1 — remove AnimatePresence and motion wrappers from the top-level
+  // transition entirely (isolates whether the motion engine is the freeze cause).
+  if (flags.noMotion) {
+    return (
+      <div className="min-h-screen px-4 sm:px-6 py-6 max-w-6xl mx-auto">
+        {view.kind === "intro" ? introEl : appContent}
+        <FacilitatorMode
+          progress={p.progress}
+          onReset={p.reset}
+          onUnlockAll={p.unlockAll}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen px-4 sm:px-6 py-6 max-w-6xl mx-auto">
-      <AnimatePresence mode="wait">
-        {view.kind === "intro" && (
-          <IntroScreen key="intro" onEnter={() => setView({ kind: "dashboard" })} />
-        )}
+      {/*
+       * PRIMARY FIX: removed mode="wait" from AnimatePresence.
+       *
+       * Root cause: with MotionConfig reducedMotion="always", motion v12 skips
+       * exit animations (runs them at 0 duration or omits the animation entirely).
+       * When mode="wait" is set, AnimatePresence waits for the exiting element's
+       * onAnimationComplete before mounting the entering element. If the 0-duration
+       * exit animation does not reliably fire onAnimationComplete (a known edge-case
+       * in motion v12 + React 19 concurrent mode), AnimatePresence never unmounts
+       * IntroScreen and never mounts the dashboard — while motion's internal RAF
+       * polling loop keeps the main thread pinned ("La pagina non risponde").
+       *
+       * Without mode (default "sync"), exit and enter run simultaneously.
+       * With reducedMotion, both are instant — no waiting, no deadlock.
+       */}
+      <AnimatePresence>
+        {view.kind === "intro" && introEl}
 
         {view.kind !== "intro" && (
           <motion.div
@@ -45,71 +165,7 @@ function EchoApp() {
             animate={{ opacity: 1 }}
             className="space-y-6"
           >
-            <HeaderNoc fragments={p.fragmentsCount} total={p.total} />
-
-            {view.kind === "dashboard" && (
-              <Dashboard
-                progress={p.progress}
-                isUnlocked={p.isUnlocked}
-                onOpen={(id) => setView({ kind: "vault", id })}
-                onOpenFinal={() => setView({ kind: "final" })}
-              />
-            )}
-
-            {view.kind === "vault" &&
-              (() => {
-                const c = challengeById(view.id);
-                if (!c) return null;
-                return (
-                  <VaultDetail
-                    challenge={c}
-                    alreadySolved={!!p.progress.solved[c.id]}
-                    onBack={() => setView({ kind: "dashboard" })}
-                    onSolved={(frag) => {
-                      p.markSolved(c.id, frag);
-                    }}
-                  />
-                );
-              })()}
-
-            {view.kind === "final" && (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="space-y-4"
-              >
-                <Button
-                  variant="ghost"
-                  onClick={() => setView({ kind: "dashboard" })}
-                  className="text-[color:var(--color-cyan)]"
-                >
-                  ← Dashboard
-                </Button>
-                <FinalVault
-                  fragments={p.progress.fragments}
-                  finalSolved={p.progress.finalSolved}
-                  onSolved={() => p.setFinalSolved(true)}
-                  onReveal={() => setView({ kind: "reveal" })}
-                />
-              </motion.div>
-            )}
-
-            {view.kind === "reveal" && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="space-y-4"
-              >
-                <Button
-                  variant="ghost"
-                  onClick={() => setView({ kind: "dashboard" })}
-                  className="text-[color:var(--color-cyan)]"
-                >
-                  ← Dashboard
-                </Button>
-                <RootCauseReveal />
-              </motion.div>
-            )}
+            {appContent}
           </motion.div>
         )}
       </AnimatePresence>
@@ -119,6 +175,27 @@ function EchoApp() {
         onReset={p.reset}
         onUnlockAll={p.unlockAll}
       />
+    </div>
+  );
+}
+
+// ?noDashboard=1 — bare navigation for isolating Dashboard rendering
+function MinimalDashboard({ onOpenFinal }: { onOpenFinal: () => void }) {
+  return (
+    <div className="glass rounded-md p-6 space-y-4 font-mono">
+      <div className="text-xs uppercase tracking-widest text-[color:var(--color-cyan)]">
+        ?noDashboard=1 — minimal navigation active
+      </div>
+      <p className="text-sm text-slate-300">
+        Dashboard, VaultCard and FragmentChain components are disabled.
+        Use this mode to verify that the freeze does not occur without them.
+      </p>
+      <Button
+        onClick={onOpenFinal}
+        className="bg-[color:var(--color-cyan)] text-black"
+      >
+        Open Final Vault
+      </Button>
     </div>
   );
 }
@@ -135,6 +212,7 @@ const INTRO_LINES = [
 ];
 
 function IntroScreen({ onEnter }: { onEnter: () => void }) {
+  echoStage("IntroScreen-render");
   const [done, setDone] = useState(false);
   const handleDone = useCallback(() => setDone(true), []);
   return (
@@ -159,6 +237,7 @@ function IntroScreen({ onEnter }: { onEnter: () => void }) {
           <TerminalPanel
             lines={INTRO_LINES}
             onDone={handleDone}
+            instant={flags.fastIntro}
           />
         </div>
 

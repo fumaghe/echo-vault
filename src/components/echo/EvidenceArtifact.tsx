@@ -1,9 +1,30 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { ZoomIn, X } from "lucide-react";
+import { ZoomIn, X, ImageOff } from "lucide-react";
+import { flags } from "@/lib/flags";
 
 export function EvidenceArtifact({ src, alt }: { src: string; alt: string }) {
   const [open, setOpen] = useState(false);
+
+  // ?noImages=1 — skip image loading entirely (isolates image-decode freeze)
+  if (flags.noImages) {
+    return (
+      <div className="glass glass-cyan rounded-md overflow-hidden relative scanlines">
+        <div className="flex items-center justify-between px-3 py-2 border-b border-[color:var(--color-border)]">
+          <span className="text-xs uppercase tracking-widest text-[color:var(--color-cyan)]">
+            Evidence Artifact
+          </span>
+          <span className="text-xs text-slate-500 flex items-center gap-1">
+            <ImageOff className="size-3" /> ?noImages=1
+          </span>
+        </div>
+        <div className="flex items-center justify-center h-40 text-slate-500 text-sm font-mono">
+          image loading disabled
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="glass glass-cyan rounded-md overflow-hidden relative scanlines">
@@ -19,7 +40,13 @@ export function EvidenceArtifact({ src, alt }: { src: string; alt: string }) {
           </button>
         </div>
         <button onClick={() => setOpen(true)} className="block w-full">
-          <img src={src} alt={alt} className="w-full h-auto block" />
+          <img
+            src={src}
+            alt={alt}
+            loading="lazy"
+            decoding="async"
+            className="w-full h-auto block"
+          />
         </button>
       </div>
       <AnimatePresence>
