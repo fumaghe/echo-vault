@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
@@ -123,39 +123,42 @@ function EchoApp() {
   );
 }
 
+const INTRO_LINES = [
+  “> sshing into noc-01.echo.internal …”,
+  “> handshake OK — TLS pinned”,
+  “> mounting /vault/operazione-echo”,
+  “> 6 incident vaults detected — chain validated”,
+  “> awaiting analyst authentication …”,
+  “”,
+  “BENVENUTO ANALYST. Il tuo compito: ricostruire la root cause.”,
+  “Ogni cassaforte rilascia un frammento. La sequenza apre la Final Vault.”,
+];
+
 function IntroScreen({ onEnter }: { onEnter: () => void }) {
   const [done, setDone] = useState(false);
+  const handleDone = useCallback(() => setDone(true), []);
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-[80vh] flex items-center justify-center"
+      className=”min-h-[80vh] flex items-center justify-center”
     >
-      <div className="glass glass-cyan rounded-lg p-6 sm:p-10 w-full max-w-2xl relative scanlines">
-        <div className="flex items-center gap-2 text-xs uppercase tracking-widest text-[color:var(--color-cyan)]">
-          <Terminal className="size-4" /> ECHO :: Access Terminal
+      <div className=”glass glass-cyan rounded-lg p-6 sm:p-10 w-full max-w-2xl relative scanlines”>
+        <div className=”flex items-center gap-2 text-xs uppercase tracking-widest text-[color:var(--color-cyan)]”>
+          <Terminal className=”size-4” /> ECHO :: Access Terminal
         </div>
-        <h1 className="mt-3 text-3xl sm:text-5xl font-black tracking-[0.18em] text-white glitch">
+        <h1 className=”mt-3 text-3xl sm:text-5xl font-black tracking-[0.18em] text-white glitch”>
           ECHO NOC
         </h1>
-        <p className="text-sm text-slate-300 mt-1">
+        <p className=”text-sm text-slate-300 mt-1”>
           Incident Vault — sessione operativa “Operazione Echo”
         </p>
 
-        <div className="mt-6 rounded-md bg-black/40 border border-[color:var(--color-border)] p-4 min-h-[200px]">
+        <div className=”mt-6 rounded-md bg-black/40 border border-[color:var(--color-border)] p-4 min-h-[200px]”>
           <TerminalPanel
-            lines={[
-              "> sshing into noc-01.echo.internal …",
-              "> handshake OK — TLS pinned",
-              "> mounting /vault/operazione-echo",
-              "> 6 incident vaults detected — chain validated",
-              "> awaiting analyst authentication …",
-              "",
-              "BENVENUTO ANALYST. Il tuo compito: ricostruire la root cause.",
-              "Ogni cassaforte rilascia un frammento. La sequenza apre la Final Vault.",
-            ]}
-            onDone={() => setDone(true)}
+            lines={INTRO_LINES}
+            onDone={handleDone}
           />
         </div>
 

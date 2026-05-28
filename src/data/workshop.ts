@@ -1,3 +1,5 @@
+const IMG = `${import.meta.env.BASE_URL}assets/echo-workshop/`;
+
 export type SplunkQuery = { title: string; query: string };
 
 export type Challenge = {
@@ -30,7 +32,7 @@ export const challenges: Challenge[] = [
     order: 1,
     title: "Il servizio che urla",
     subtitle: "Volume non è gravità",
-    artifactImage: "/assets/echo-workshop/step1.svg",
+    artifactImage: `${IMG}step1.png`,
     briefing: [
       "Durante la finestra 06:30 - 09:30 sono stati osservati diversi segnali anomali sui servizi Echo.",
       "Il volume totale degli eventi non è sufficiente per identificare il servizio impattato: alcuni servizi parlano molto, ma non sbagliano davvero.",
@@ -68,7 +70,7 @@ Chi sono?`,
     order: 2,
     title: "Il log indecifrabile",
     subtitle: "Tre maschere, un solo nodo",
-    artifactImage: "/assets/echo-workshop/step2.svg",
+    artifactImage: `${IMG}step2.png`,
     briefing: [
       "I log grezzi sono stati esportati in emergenza. Il parser ufficiale non funziona.",
       "Tutti gli eventi sono finiti dentro una singola colonna. Prima di capire cosa è successo, bisogna ricostruire il linguaggio dei log.",
@@ -112,7 +114,7 @@ Prendi la mia iniziale e il mio numero.`,
     order: 3,
     title: "Il ticket fantasma",
     subtitle: "Duplicato perché mai normalizzato",
-    artifactImage: "/assets/echo-workshop/step3.svg",
+    artifactImage: `${IMG}step3.png`,
     briefing: [
       "L'ITSM ha esportato alcuni ticket aperti nella finestra dell'incidente. Uno dei ticket compare più volte, ma non sempre nello stesso formato.",
       "Possibili anomalie: maiuscole/minuscole incoerenti, trattino mancante, spazi finali, owner mancante, descrizioni simili ma non identiche.",
@@ -165,7 +167,7 @@ prendi solo le ultime due cifre più importanti.`,
     order: 4,
     title: "La release maledetta",
     subtitle: "Ogni cambiamento lascia un'ombra",
-    artifactImage: "/assets/echo-workshop/step4.svg",
+    artifactImage: `${IMG}step4.png`,
     briefing: [
       "Un deploy non è una colpa. Ma ogni cambiamento lascia un'ombra.",
       "Mail release-bot — Ciao team, il deploy della versione v27 è stato completato sui nodi previsti.",
@@ -204,7 +206,7 @@ Sono breve, comincio con una lettera e finisco con due numeri.`,
     order: 5,
     title: "Il trattino scomparso",
     subtitle: "Piccolo, orizzontale, ignorato",
-    artifactImage: "/assets/echo-workshop/step5.svg",
+    artifactImage: `${IMG}step5.png`,
     briefing: [
       "Durante l'incidente è stato richiesto un controllo sui mapping legacy.",
       "Il file di mapping collega: BB_ID, route_owner, preferred_host, fallback_host.",
@@ -248,7 +250,7 @@ In inglese mi chiamano?`,
     order: 6,
     title: "Human Approval",
     subtitle: "L'ultimo frammento è una decisione",
-    artifactImage: "/assets/echo-workshop/step6.svg",
+    artifactImage: `${IMG}step6.png`,
     briefing: [
       "Il team ha raccolto evidenze sufficienti. Per aprire la cassaforte Echo serve una validazione umana.",
       "Create un flow Power Automate che raccolga i dati principali dell'incidente, generi una sintesi operativa con AI, mandi una mail ad Andrea e richieda approval per la remediation.",
