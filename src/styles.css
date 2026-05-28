@@ -60,11 +60,16 @@
   --alert: oklch(0.65 0.25 25);
 }
 
-.dark { color-scheme: dark; }
+.dark {
+  color-scheme: dark;
+}
 
 @layer base {
-  * { border-color: var(--color-border); }
-  html, body {
+  * {
+    border-color: var(--color-border);
+  }
+  html,
+  body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-mono);
@@ -74,7 +79,10 @@
       radial-gradient(circle at 20% 10%, oklch(0.25 0.1 220 / 0.4), transparent 40%),
       radial-gradient(circle at 80% 80%, oklch(0.25 0.15 280 / 0.3), transparent 40%),
       linear-gradient(transparent 0, transparent calc(100% - 1px), oklch(0.8 0.16 210 / 0.04) 100%);
-    background-size: auto, auto, 100% 4px;
+    background-size:
+      auto,
+      auto,
+      100% 4px;
     min-height: 100vh;
   }
 }
@@ -84,7 +92,9 @@
   background: linear-gradient(135deg, oklch(0.2 0.05 250 / 0.55), oklch(0.15 0.04 260 / 0.4));
   backdrop-filter: blur(10px);
   border: 1px solid oklch(0.7 0.16 210 / 0.35);
-  box-shadow: 0 0 24px oklch(0.7 0.16 210 / 0.08) inset, 0 0 30px oklch(0.5 0.16 210 / 0.1);
+  box-shadow:
+    0 0 24px oklch(0.7 0.16 210 / 0.08) inset,
+    0 0 30px oklch(0.5 0.16 210 / 0.1);
 }
 .glass-neon {
   box-shadow:
@@ -105,7 +115,8 @@
 /* Scanlines */
 .scanlines::before {
   content: "";
-  position: absolute; inset: 0;
+  position: absolute;
+  inset: 0;
   background: repeating-linear-gradient(
     to bottom,
     transparent 0,
@@ -118,24 +129,65 @@
 
 /* Glitch */
 @keyframes glitch {
-  0%, 100% { transform: translate(0); text-shadow: 0 0 2px var(--color-cyan); }
-  20% { transform: translate(-1px, 1px); text-shadow: 2px 0 var(--color-alert), -2px 0 var(--color-cyan); }
-  40% { transform: translate(1px, -1px); text-shadow: -2px 0 var(--color-alert), 2px 0 var(--color-cyan); }
-  60% { transform: translate(-1px, -1px); text-shadow: 1px 0 var(--color-alert), -1px 0 var(--color-cyan); }
-  80% { transform: translate(1px, 1px); }
+  0%,
+  100% {
+    transform: translate(0);
+    text-shadow: 0 0 2px var(--color-cyan);
+  }
+  20% {
+    transform: translate(-1px, 1px);
+    text-shadow:
+      2px 0 var(--color-alert),
+      -2px 0 var(--color-cyan);
+  }
+  40% {
+    transform: translate(1px, -1px);
+    text-shadow:
+      -2px 0 var(--color-alert),
+      2px 0 var(--color-cyan);
+  }
+  60% {
+    transform: translate(-1px, -1px);
+    text-shadow:
+      1px 0 var(--color-alert),
+      -1px 0 var(--color-cyan);
+  }
+  80% {
+    transform: translate(1px, 1px);
+  }
 }
-.glitch { animation: glitch 2.4s infinite; }
+.glitch {
+  animation: glitch 2.4s infinite;
+}
 
 @keyframes blink {
-  50% { opacity: 0; }
+  50% {
+    opacity: 0;
+  }
 }
-.cursor::after { content: "▍"; animation: blink 1s steps(1) infinite; color: var(--color-cyan); margin-left: 2px; }
+.cursor::after {
+  content: "▍";
+  animation: blink 1s steps(1) infinite;
+  color: var(--color-cyan);
+  margin-left: 2px;
+}
 
 @keyframes neonPulse {
-  0%, 100% { box-shadow: 0 0 0 1px oklch(0.82 0.16 210 / 0.6), 0 0 18px oklch(0.82 0.16 210 / 0.3); }
-  50% { box-shadow: 0 0 0 1px oklch(0.82 0.16 210 / 0.9), 0 0 36px oklch(0.82 0.16 210 / 0.55); }
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 1px oklch(0.82 0.16 210 / 0.6),
+      0 0 18px oklch(0.82 0.16 210 / 0.3);
+  }
+  50% {
+    box-shadow:
+      0 0 0 1px oklch(0.82 0.16 210 / 0.9),
+      0 0 36px oklch(0.82 0.16 210 / 0.55);
+  }
 }
-.pulse-cyan { animation: neonPulse 3s ease-in-out infinite; }
+.pulse-cyan {
+  animation: neonPulse 3s ease-in-out infinite;
+}
 
 /* Safe render mode: default on GitHub Pages unless ?effects=1 is present.
    This removes the effects most likely to saturate Chrome's compositor/main thread
@@ -182,5 +234,9 @@
 }
 
 /* Hide scrollbar in terminal */
-.no-scrollbar::-webkit-scrollbar { display: none; }
-.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}

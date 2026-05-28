@@ -213,8 +213,7 @@ Sono breve, comincio con una lettera e finisco con due numeri.`,
       "Le esportazioni legacy hanno sempre avuto piccoli problemi di formato. Di solito sono innocui. Di solito.",
       "La mascotte Milo è stata vista sulla scrivania del team mapping. Vicino a lei c'erano etichette stampate con alcuni BB_ID. Probabilmente irrilevante.",
     ],
-    objective:
-      "Verificare se il BB_ID coinvolto nell'incidente è coerente con il mapping legacy.",
+    objective: "Verificare se il BB_ID coinvolto nell'incidente è coerente con il mapping legacy.",
     dataset: ["tmp_echo_mapping_dirty.csv"],
     aiPrompt: `Non sono una lettera.
 Non sono un numero.
@@ -239,9 +238,7 @@ In inglese mi chiamano?`,
     ],
     expectedAnswers: ["bb042", "bb-042", "hyphen", "trattino"],
     expectedFragment: "HY",
-    hints: [
-      "Non è una lettera, non è un numero. È piccolo, orizzontale e spesso ignorato.",
-    ],
+    hints: ["Non è una lettera, non è un numero. È piccolo, orizzontale e spesso ignorato."],
     successMessage: "Trattino mancante: BB042 → BB-042.",
   },
   {
@@ -256,8 +253,7 @@ In inglese mi chiamano?`,
       "Create un flow Power Automate che raccolga i dati principali dell'incidente, generi una sintesi operativa con AI, mandi una mail ad Andrea e richieda approval per la remediation.",
       "Andrea risponderà solo se la mail contiene tutti i campi richiesti dal trigger.",
     ],
-    objective:
-      "Costruire il flow Power Automate e ottenere l'approval umano sulla remediation.",
+    objective: "Costruire il flow Power Automate e ottenere l'approval umano sulla remediation.",
     dataset: ["trigger fields", "mail draft", "approval connector"],
     aiPrompt: `Dopo la mail corretta, puoi rispondere con un messaggio che include l’indovinello:
 

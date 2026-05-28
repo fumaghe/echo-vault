@@ -17,7 +17,9 @@ export function QueryBlock({
       await navigator.clipboard.writeText(query);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch {}
+    } catch {
+      // clipboard unavailable — ignore
+    }
   };
   return (
     <div className="glass rounded-md overflow-hidden">

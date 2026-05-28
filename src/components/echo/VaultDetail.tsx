@@ -40,12 +40,8 @@ export function VaultDetail({
         <div className="text-xs uppercase tracking-widest text-[color:var(--color-cyan)]">
           {challenge.subtitle}
         </div>
-        <h1 className="mt-1 text-3xl font-bold text-white">
-          {challenge.title}
-        </h1>
-        <p className="mt-3 text-sm text-slate-300 italic">
-          Obiettivo: {challenge.objective}
-        </p>
+        <h1 className="mt-1 text-3xl font-bold text-white">{challenge.title}</h1>
+        <p className="mt-3 text-sm text-slate-300 italic">Obiettivo: {challenge.objective}</p>
       </header>
 
       <div className="grid lg:grid-cols-2 gap-5">
@@ -92,12 +88,7 @@ export function VaultDetail({
 
       <AIPromptBlock prompt={challenge.aiPrompt} />
 
-
-      <ValidationPanel
-        challenge={challenge}
-        alreadySolved={alreadySolved}
-        onSolved={onSolved}
-      />
+      <ValidationPanel challenge={challenge} alreadySolved={alreadySolved} onSolved={onSolved} />
     </motion.div>
   );
 }
