@@ -1,3 +1,5 @@
+/* eslint-disable react-refresh/only-export-components */
+// Error boundaries must be class components — fast-refresh warning is unavoidable here.
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { debugLog } from "@/lib/debug";
 
@@ -21,7 +23,11 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.error) {
-      return this.props.fallback ?? <DefaultErrorUI error={this.state.error} onReset={() => this.setState({ error: null })} />;
+      return (
+        this.props.fallback ?? (
+          <DefaultErrorUI error={this.state.error} onReset={() => this.setState({ error: null })} />
+        )
+      );
     }
     return this.props.children;
   }
@@ -39,8 +45,7 @@ function DefaultErrorUI({ error, onReset }: { error: Error; onReset: () => void 
           {error.message}
         </pre>
         <p className="text-sm text-slate-400">
-          Il progresso locale è al sicuro. Prova a ricaricare la pagina o a cliccare
-          "Riprova".
+          Il progresso locale è al sicuro. Prova a ricaricare la pagina o a cliccare "Riprova".
         </p>
         <div className="flex flex-wrap gap-3">
           <button

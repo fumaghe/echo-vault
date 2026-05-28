@@ -27,7 +27,11 @@ function safeLoad(): Progress {
     return { ...empty, ...parsed };
   } catch {
     // Corrupted storage — reset silently
-    try { localStorage.removeItem(KEY); } catch {}
+    try {
+      localStorage.removeItem(KEY);
+    } catch {
+      // removeItem can fail in private-browsing mode — ignore
+    }
     return empty;
   }
 }
@@ -51,7 +55,9 @@ export function useProgress() {
     }
     try {
       localStorage.setItem(KEY, JSON.stringify(progress));
-    } catch {}
+    } catch {
+      // localStorage unavailable (private mode, quota exceeded) — ignore
+    }
   }, [progress, ready]);
 
   // Functional updates avoid stale-closure bugs and keep callbacks stable.

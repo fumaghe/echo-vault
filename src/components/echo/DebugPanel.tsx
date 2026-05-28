@@ -33,7 +33,8 @@ export function DebugPanel() {
     >
       <div className="text-cyan-500 font-bold flex items-center justify-between sticky top-0 bg-black/90 py-0.5">
         <span>
-          ECHO DEBUG — base: {base} — route: {typeof window !== "undefined" ? window.location.pathname : "?"}
+          ECHO DEBUG — base: {base} — route:{" "}
+          {typeof window !== "undefined" ? window.location.pathname : "?"}
         </span>
         <a
           href={typeof window !== "undefined" ? window.location.pathname : "/"}

@@ -11,17 +11,23 @@ export function storageGet<T>(key: string, fallback: T): T {
 export function storageSet(key: string, value: unknown): void {
   try {
     localStorage.setItem(key, JSON.stringify(value));
-  } catch {}
+  } catch {
+    // localStorage unavailable (private mode, quota exceeded) — ignore
+  }
 }
 
 export function storageRemove(key: string): void {
   try {
     localStorage.removeItem(key);
-  } catch {}
+  } catch {
+    // ignore
+  }
 }
 
 export function storageClear(): void {
   try {
     localStorage.clear();
-  } catch {}
+  } catch {
+    // ignore
+  }
 }

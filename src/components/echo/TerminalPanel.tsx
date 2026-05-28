@@ -66,11 +66,11 @@ export function TerminalPanel({
       }
     >
       {shown.map((l, i) => (
-        <div key={i} className="whitespace-pre-wrap">{l || "\u00A0"}</div>
+        <div key={i} className="whitespace-pre-wrap">
+          {l || "\u00A0"}
+        </div>
       ))}
-      {lineIdx < lines.length && (
-        <div className="whitespace-pre-wrap cursor">{current}</div>
-      )}
+      {lineIdx < lines.length && <div className="whitespace-pre-wrap cursor">{current}</div>}
     </div>
   );
 }

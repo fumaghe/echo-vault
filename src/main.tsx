@@ -23,5 +23,5 @@ createRoot(rootElement).render(
       <RouterProvider router={router} />
       <DebugPanel />
     </ErrorBoundary>
-  </StrictMode>
+  </StrictMode>,
 );
