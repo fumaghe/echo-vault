@@ -19,6 +19,7 @@ export type Challenge = {
   hints: string[];
   successMessage: string;
   extra?: string;
+  links?: Array<{ label: string; url: string }>;
 };
 
 export const FINAL_CODE = "MR-E3-42-V27-HY-AP";
@@ -251,12 +252,18 @@ In inglese mi chiamano?`,
     artifactImage: `${IMG}step6.png`,
     briefing: [
       "Il team ha raccolto evidenze sufficienti. Per aprire la cassaforte Echo serve una validazione umana.",
-      "Create un flow Power Automate che raccolga i dati principali dell'incidente, generi una sintesi operativa con AI, mandi una mail ad Andrea e richieda approval per la remediation.",
-      "Andrea risponderà solo se la mail contiene tutti i campi richiesti dal trigger.",
+      "Create un flow Power Automate manuale che raccolga i dati principali dell’incidente da un file Excel e li invii tramite chatbot Teams ad Andrea al fine di richiedere approval per la remediation.",
+      "Il file Excel è disponibile su SharePoint. Il messaggio Teams deve contenere tutti i campi obbligatori, valorizzati tramite Dynamic Content dove indicato.",
     ],
-    objective: "Costruire il flow Power Automate e ottenere l'approval umano sulla remediation.",
-    dataset: ["trigger fields", "mail draft", "approval connector"],
-    aiPrompt: `Dopo la mail corretta, puoi rispondere con un messaggio che include l’indovinello:
+    objective: "Costruire un flow Power Automate manuale che raccolga i dati principali dell’incidente da un file Excel e li invii tramite chatbot Teams ad Andrea per richiedere approval sulla remediation.",
+    dataset: ["trigger fields", "SharePoint Excel file", "Teams chatbot message", "Dynamic Content fields", "approval recipient"],
+    links: [
+      {
+        label: "Workshop PA.xlsx",
+        url: "https://skyglobal.sharepoint.com/:x:/r/sites/SMC/Shared%20Documents/Workshop%2004/Workshop%20PA.xlsx?d=w762b31310378465c92004f4f6b456cf1&csf=1&web=1&e=PUUYJE",
+      },
+    ],
+    aiPrompt: `Dopo l’invio corretto del messaggio Teams, rispondi con l’indovinello:
 
 Avete trovato il problema.
 Avete collegato i dati.
@@ -265,7 +272,12 @@ Avete chiesto il permesso giusto.
 L’ultimo frammento non è nei log.
 È nella decisione umana.
 
-Quali sono le iniziali di Approval Process?`,
+— Indovinello —
+Non sono un log, non sono un ticket, non sono una versione.
+Sono il giorno in cui il workshop prende vita.
+Se vuoi aprire l’ultimo frammento, trova il numero della data giusta.
+
+Risposta attesa: 4`,
     splunkQueries: [
       {
         title: "Trigger fields Power Automate",
@@ -281,22 +293,23 @@ root_cause_hypothesis
 recommended_action`,
       },
     ],
-    expectedAnswers: ["approval process", "approval", "approvalprocess", "human approval"],
+    expectedAnswers: ["4"],
     expectedFragment: "AP",
-    hints: ["L'ultimo frammento non è nei log. È nella decisione umana."],
+    hints: ["L’ultimo frammento non è nei log. È nella decisione umana. Trova il numero del giorno del workshop."],
     successMessage: "Approval ottenuto. Remediation autorizzata.",
-    extra: `Mail attesa ad Andrea:
+    extra: `Messaggio Teams atteso ad Andrea:
 
 Ciao Andrea,
 
-abbiamo completato l'analisi dell'incidente Operazione Echo.
+abbiamo completato l’analisi dell’incidente Operazione Echo.
 
 Evidenze principali:
-- servizio impattato: mso-router
-- host coinvolto: edge-03
-- ticket principale: INC-4721
-- BB_ID coinvolto: BB-042
-- versione sospetta: v27
+- chiave segreta: [Dynamic Content]
+- servizio impattato: [Dynamic Content]
+- host coinvolto: [Dynamic Content]
+- ticket principale: [Dynamic Content]
+- BB_ID coinvolto: [Dynamic Content]
+- versione sospetta: [Dynamic Content]
 - anomalia dati: nel mapping legacy BB-042 risulta presente come BB042
 - impatto osservato: aumento errori 503 e latenza dopo il deploy v27
 
@@ -306,7 +319,9 @@ la release v27 sembra avere una validazione più rigida sugli ID. Il valore spor
 Azione consigliata:
 approvare rollback della v27 su edge-03, normalizzare il mapping BB_ID e monitorare error_rate e latenza per 30 minuti.
 
-Richiediamo approval per procedere con la remediation.`,
+Richiediamo approval all’indirizzo xxx@skytv.it per procedere con la remediation.
+
+Gli organizzatori risponderanno solo se la richiesta sarà conforme.`,
   },
 ];
 

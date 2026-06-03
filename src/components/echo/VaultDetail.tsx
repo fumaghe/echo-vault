@@ -74,6 +74,21 @@ export function VaultDetail({
                 </span>
               ))}
             </div>
+            {challenge.links && challenge.links.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {challenge.links.map((link) => (
+                  <a
+                    key={link.url}
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-2 py-1 rounded font-mono text-xs border border-[color:var(--color-cyan)] text-[color:var(--color-cyan)] hover:bg-[color:var(--color-cyan)] hover:text-black transition-colors"
+                  >
+                    ↗ {link.label}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           {challenge.extra && (
