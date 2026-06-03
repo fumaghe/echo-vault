@@ -256,7 +256,7 @@ In inglese mi chiamano?`,
       "Il file Excel è disponibile su SharePoint. Il messaggio Teams deve contenere tutti i campi obbligatori, valorizzati tramite Dynamic Content dove indicato.",
     ],
     objective: "Costruire un flow Power Automate manuale che raccolga i dati principali dell’incidente da un file Excel e li invii tramite chatbot Teams ad Andrea per richiedere approval sulla remediation.",
-    dataset: ["trigger fields", "SharePoint Excel file", "Teams chatbot message", "Dynamic Content fields", "approval recipient"],
+    dataset: [],
     links: [
       {
         label: "Workshop PA.xlsx",
@@ -264,20 +264,10 @@ In inglese mi chiamano?`,
       },
     ],
     aiPrompt: `Dopo l’invio corretto del messaggio Teams, rispondi con l’indovinello:
-
-Avete trovato il problema.
-Avete collegato i dati.
-Avete chiesto il permesso giusto.
-
-L’ultimo frammento non è nei log.
-È nella decisione umana.
-
-— Indovinello —
 Non sono un log, non sono un ticket, non sono una versione.
 Sono il giorno in cui il workshop prende vita.
 Se vuoi aprire l’ultimo frammento, trova il numero della data giusta.
-
-Risposta attesa: 4`,
+`,
     splunkQueries: [
       {
         title: "Trigger fields Power Automate",
@@ -310,16 +300,16 @@ Evidenze principali:
 - ticket principale: [Dynamic Content]
 - BB_ID coinvolto: [Dynamic Content]
 - versione sospetta: [Dynamic Content]
-- anomalia dati: nel mapping legacy BB-042 risulta presente come BB042
-- impatto osservato: aumento errori 503 e latenza dopo il deploy v27
+- anomalia dati: [ Scrivere qui ]
+- impatto osservato: [ Scrivere qui ]
 
 Ipotesi root cause:
-la release v27 sembra avere una validazione più rigida sugli ID. Il valore sporco BB042 non viene riconosciuto come BB-042, quindi la lookup del route_owner fallisce e il traffico va in fallback su edge-03.
+[ Scrivere qui la vostra ipotesi ]
 
 Azione consigliata:
-approvare rollback della v27 su edge-03, normalizzare il mapping BB_ID e monitorare error_rate e latenza per 30 minuti.
+[ Scrivere qui la vostra azione consigliata ]
 
-Richiediamo approval all’indirizzo xxx@skytv.it per procedere con la remediation.
+Richiediamo approval all’indirizzo andrea.fumagalli@skytv.it per procedere con la remediation.
 
 Gli organizzatori risponderanno solo se la richiesta sarà conforme.`,
   },
