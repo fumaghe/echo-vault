@@ -252,10 +252,16 @@ In inglese mi chiamano?`,
     artifactImage: `${IMG}step6.png`,
     briefing: [
       "Il team ha raccolto evidenze sufficienti. Per aprire la cassaforte Echo serve una validazione umana.",
-      "Create un flow Power Automate manuale che raccolga i dati principali dell’incidente da un file Excel e li invii tramite chatbot Teams ad Andrea al fine di richiedere approval per la remediation.",
-      "Il file Excel è disponibile su SharePoint. Il messaggio Teams deve contenere tutti i campi obbligatori, valorizzati tramite Dynamic Content dove indicato.",
+      "Caratteristiche del flusso:",
+      "• Flusso manuale",
+      "• Richiesta Input: email del richiedente/team member (uno qualsiasi del team, non necessariamente Andrea)",
+      "• Richiesta Input: chiave segreta",
+      "• Recupero informazioni da un file Excel presente nel percorso SharePoint",
+      "• File Excel cliccabile: Workshop PA.xlsx",
+      "• Invio tramite Teams del messaggio richiesto",
+      "• I campi dinamici devono essere popolati usando Dynamic Content",
     ],
-    objective: "Costruire un flow Power Automate manuale che raccolga i dati principali dell’incidente da un file Excel e li invii tramite chatbot Teams ad Andrea per richiedere approval sulla remediation.",
+    objective: "Costruire un flow Power Automate manuale che raccolga i dati principali dell’incidente da un file Excel e li invii tramite chatbot Teams, richiedendo approval all’indirizzo email fornito come input manuale dal richiedente o da un membro del team.",
     dataset: [],
     links: [
       {
@@ -264,10 +270,16 @@ In inglese mi chiamano?`,
       },
     ],
     aiPrompt: `Dopo l’invio corretto del messaggio Teams, rispondi con l’indovinello:
+
 Non sono un log, non sono un ticket, non sono una versione.
 Sono il giorno in cui il workshop prende vita.
 Se vuoi aprire l’ultimo frammento, trova il numero della data giusta.
-`,
+
+Risposta investigativa attesa:
+4
+
+Frammento / Key attesa:
+AP`,
     splunkQueries: [
       {
         title: "Trigger fields Power Automate",
@@ -309,7 +321,7 @@ Ipotesi root cause:
 Azione consigliata:
 [ Scrivere qui la vostra azione consigliata ]
 
-Richiediamo approval all’indirizzo andrea.fumagalli@skytv.it per procedere con la remediation.
+Richiediamo approval all’indirizzo [Dynamic Content] per procedere con la remediation.
 
 Gli organizzatori risponderanno solo se la richiesta sarà conforme.`,
   },
