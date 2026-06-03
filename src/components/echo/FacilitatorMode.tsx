@@ -5,12 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings2, RefreshCw, Unlock, Lock } from "lucide-react";
-import {
-  challenges,
-  FACILITATOR_CODE,
-  FINAL_CODE,
-  VAULT_KEY,
-} from "@/data/workshop";
+import { challenges, FACILITATOR_CODE, FINAL_CODE, VAULT_KEY } from "@/data/workshop";
 import { QueryBlock, AIPromptBlock } from "./QueryBlock";
 import type { Progress } from "@/hooks/useProgress";
 
@@ -46,7 +41,17 @@ export function FacilitatorMode({
         <Settings2 className="size-3" /> Facilitator Mode
       </button>
 
-      <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) { setAuth(false); setCode(""); setErr(false); } }}>
+      <Dialog
+        open={open}
+        onOpenChange={(o) => {
+          setOpen(o);
+          if (!o) {
+            setAuth(false);
+            setCode("");
+            setErr(false);
+          }
+        }}
+      >
         <DialogContent className="max-w-4xl bg-[oklch(0.13_0.04_260)] border-[color:var(--color-cyan)] text-white">
           <DialogHeader>
             <DialogTitle className="font-mono text-[color:var(--color-cyan)]">
@@ -57,8 +62,8 @@ export function FacilitatorMode({
           {!auth ? (
             <div className="space-y-3">
               <p className="text-sm text-slate-300">
-                Inserire codice facilitatore per visualizzare soluzioni e
-                strumenti di gestione workshop.
+                Inserire codice facilitatore per visualizzare soluzioni e strumenti di gestione
+                workshop.
               </p>
               <Input
                 value={code}
@@ -92,9 +97,7 @@ export function FacilitatorMode({
               </TabsList>
 
               <TabsContent value="state" className="space-y-3">
-                <div className="text-sm text-slate-300">
-                  Progresso corrente:
-                </div>
+                <div className="text-sm text-slate-300">Progresso corrente:</div>
                 <ul className="text-sm font-mono space-y-1">
                   {challenges.map((c) => (
                     <li key={c.id}>
@@ -106,9 +109,7 @@ export function FacilitatorMode({
                             : "text-slate-500"
                         }
                       >
-                        {progress.solved[c.id]
-                          ? `SOLVED (${progress.fragments[c.id]})`
-                          : "LOCKED"}
+                        {progress.solved[c.id] ? `SOLVED (${progress.fragments[c.id]})` : "LOCKED"}
                       </span>
                     </li>
                   ))}
@@ -116,9 +117,7 @@ export function FacilitatorMode({
                     FINAL VAULT —{" "}
                     <span
                       className={
-                        progress.finalSolved
-                          ? "text-[color:var(--color-neon)]"
-                          : "text-slate-500"
+                        progress.finalSolved ? "text-[color:var(--color-neon)]" : "text-slate-500"
                       }
                     >
                       {progress.finalSolved ? "OPENED" : "CLOSED"}
@@ -129,7 +128,10 @@ export function FacilitatorMode({
                   <Button onClick={onReset} variant="outline" className="gap-2">
                     <RefreshCw className="size-3" /> Reset progresso
                   </Button>
-                  <Button onClick={onUnlockAll} className="gap-2 bg-[color:var(--color-neon)] text-black">
+                  <Button
+                    onClick={onUnlockAll}
+                    className="gap-2 bg-[color:var(--color-neon)] text-black"
+                  >
                     <Unlock className="size-3" /> Sblocca tutto
                   </Button>
                   <Button onClick={onReset} variant="destructive" className="gap-2">
@@ -151,7 +153,9 @@ export function FacilitatorMode({
                     <tbody>
                       {challenges.map((c) => (
                         <tr key={c.id} className="border-t border-white/10">
-                          <td className="py-1 pr-3">{c.code} — {c.title}</td>
+                          <td className="py-1 pr-3">
+                            {c.code} — {c.title}
+                          </td>
                           <td className="py-1 pr-3 text-[color:var(--color-neon)]">
                             {c.expectedAnswers.join(" / ")}
                           </td>
@@ -165,7 +169,10 @@ export function FacilitatorMode({
                 </div>
               </TabsContent>
 
-              <TabsContent value="queries" className="space-y-4 max-h-[60vh] overflow-y-auto no-scrollbar">
+              <TabsContent
+                value="queries"
+                className="space-y-4 max-h-[60vh] overflow-y-auto no-scrollbar"
+              >
                 {challenges.map((c) => (
                   <div key={c.id} className="space-y-2">
                     <div className="text-xs uppercase tracking-widest text-[color:var(--color-cyan)]">

@@ -1,11 +1,7 @@
 import { motion } from "motion/react";
 import { challenges } from "@/data/workshop";
 
-export function FragmentChain({
-  fragments,
-}: {
-  fragments: Record<string, string>;
-}) {
+export function FragmentChain({ fragments }: { fragments: Record<string, string> }) {
   return (
     <div className="glass rounded-md p-4">
       <div className="text-xs uppercase tracking-widest text-[color:var(--color-cyan)] mb-3">
@@ -27,9 +23,7 @@ export function FragmentChain({
               >
                 {got ?? "░░"}
               </motion.div>
-              {i < challenges.length - 1 && (
-                <span className="text-slate-600">─</span>
-              )}
+              {i < challenges.length - 1 && <span className="text-slate-600">─</span>}
             </div>
           );
         })}

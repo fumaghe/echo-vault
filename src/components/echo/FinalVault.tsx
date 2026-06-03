@@ -50,8 +50,8 @@ export function FinalVault({
         OPERAZIONE ECHO — ACCESSO ALLA CASSAFORTE
       </h2>
       <p className="mt-2 text-sm text-slate-300">
-        Avete raccolto tutti i frammenti. Ma Echo non accetta frammenti in ordine
-        casuale. Il terminale proverà a ricostruire la sequenza corretta.
+        Avete raccolto tutti i frammenti. Ma Echo non accetta frammenti in ordine casuale. Il
+        terminale proverà a ricostruire la sequenza corretta.
       </p>
 
       {!finalSolved ? (

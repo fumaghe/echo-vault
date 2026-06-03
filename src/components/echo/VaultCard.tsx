@@ -19,12 +19,7 @@ export function VaultCard({
 }) {
   const isLocked = status === "LOCKED";
   const isSolved = status === "SOLVED";
-  const accent =
-    isSolved
-      ? "glass-neon"
-      : status === "AVAILABLE"
-        ? "glass-cyan pulse-cyan"
-        : "";
+  const accent = isSolved ? "glass-neon" : status === "AVAILABLE" ? "glass-cyan pulse-cyan" : "";
   return (
     <motion.button
       initial={{ opacity: 0, y: 16 }}
@@ -47,9 +42,7 @@ export function VaultCard({
           <Unlock className="size-4 text-[color:var(--color-cyan)]" />
         )}
       </div>
-      <h3 className="mt-3 text-lg font-semibold text-white leading-tight">
-        {challenge.title}
-      </h3>
+      <h3 className="mt-3 text-lg font-semibold text-white leading-tight">{challenge.title}</h3>
       <p className="mt-1 text-xs text-slate-400">{challenge.subtitle}</p>
 
       <div className="mt-5 flex items-center justify-between text-xs">
