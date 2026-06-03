@@ -215,7 +215,7 @@ Sono breve, comincio con una lettera e finisco con due numeri.`,
     ],
     objective:
       "Verificare se il BB_ID coinvolto nell'incidente è coerente con il mapping legacy.",
-    dataset: ["tmp_echo_mapping_dirty.csv"],
+    dataset: ["tmp_echo_mapping.csv"],
     aiPrompt: `Non sono una lettera.
 Non sono un numero.
 Sono piccolo, orizzontale e spesso ignorato.
@@ -227,7 +227,7 @@ In inglese mi chiamano?`,
     splunkQueries: [
       {
         title: "Audit mapping legacy",
-        query: `| inputlookup tmp_echo_mapping_dirty.csv
+        query: `| inputlookup tmp_echo_mapping.csv
 | eval raw_BB_ID=upper(trim(BB_ID))
 | eval expected_BB_ID=upper(trim(normalized_expected))
 | eval bb_digits=replace(raw_BB_ID,"[^0-9]","")
