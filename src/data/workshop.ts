@@ -273,13 +273,7 @@ In inglese mi chiamano?`,
 
 Non sono un log, non sono un ticket, non sono una versione.
 Sono il giorno in cui il workshop prende vita.
-Se vuoi aprire l’ultimo frammento, trova il numero della data giusta.
-
-Risposta investigativa attesa:
-4
-
-Frammento / Key attesa:
-AP`,
+Se vuoi aprire l’ultimo frammento, trova il numero della data giusta.`,
     splunkQueries: [
       {
         title: "Trigger fields Power Automate",
