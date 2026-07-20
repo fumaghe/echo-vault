@@ -289,7 +289,7 @@ root_cause_hypothesis
 recommended_action`,
       },
     ],
-    expectedAnswers: ["4"],
+    expectedAnswers: ["20"],
     expectedFragment: "AP",
     hints: ["L’ultimo frammento non è nei log. È nella decisione umana. Trova il numero del giorno del workshop."],
     successMessage: "Approval ottenuto. Remediation autorizzata.",
