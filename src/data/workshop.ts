@@ -243,6 +243,7 @@ In inglese mi chiamano?`,
     hints: ["Non è una lettera, non è un numero. È piccolo, orizzontale e spesso ignorato."],
     successMessage: "Trattino mancante: BB042 → BB-042.",
   },
+
   {
     id: "F",
     code: "F",
@@ -261,7 +262,8 @@ In inglese mi chiamano?`,
       "• Invio tramite Teams del messaggio richiesto",
       "• I campi dinamici devono essere popolati usando Dynamic Content",
     ],
-    objective: "Costruire un flow Power Automate manuale che raccolga i dati principali dell’incidente da un file Excel e li invii tramite chatbot Teams, richiedendo approval all’indirizzo email fornito come input manuale dal richiedente o da un membro del team.",
+    objective:
+      "Costruire un flow Power Automate manuale che raccolga i dati principali dell’incidente da un file Excel e li invii tramite chatbot Teams, richiedendo approval all’indirizzo email fornito come input manuale dal richiedente o da un membro del team.",
     dataset: [],
     links: [
       {
@@ -269,55 +271,49 @@ In inglese mi chiamano?`,
         url: "https://skyglobal.sharepoint.com/:x:/r/sites/SMC/Shared%20Documents/Workshop%2004/Workshop%20PA.xlsx?d=w762b31310378465c92004f4f6b456cf1&csf=1&web=1&e=PUUYJE",
       },
     ],
-    aiPrompt: `Dopo l’invio corretto del messaggio Teams, rispondi con l’indovinello:
+    aiPrompt: `Indizio chiave segreta:
 
-Non sono un log, non sono un ticket, non sono una versione.
-Sono il giorno in cui il workshop prende vita.
-Se vuoi aprire l’ultimo frammento, trova il numero della data giusta.`,
+  Non sono un log, non sono un ticket, non sono una versione.
+  Sono il giorno in cui il workshop prende vita.
+  Se vuoi aprire l’ultimo frammento, trova il numero della data giusta.`,
     splunkQueries: [
       {
         title: "Trigger fields Power Automate",
         query: `team_name
-service
-host
-ticket_id
-BB_ID
-deployment_version
-dirty_mapping
-splunk_evidence
-root_cause_hypothesis
-recommended_action`,
+  service
+  host
+  ticket_id
+  BB_ID
+  deployment_version
+  dirty_mapping
+  splunk_evidence
+  root_cause_hypothesis
+  recommended_action`,
       },
     ],
-    expectedAnswers: ["4"],
+    expectedAnswers: ["20"],
     expectedFragment: "AP",
-    hints: ["L’ultimo frammento non è nei log. È nella decisione umana. Trova il numero del giorno del workshop."],
+    hints: [
+      "L’ultimo frammento non è nei log. È nella decisione umana. Trova il numero del giorno del workshop.",
+    ],
     successMessage: "Approval ottenuto. Remediation autorizzata.",
     extra: `Messaggio Teams atteso ad Andrea:
 
-Ciao Andrea,
+  Ciao Andrea,
 
-abbiamo completato l’analisi dell’incidente Operazione Echo.
+  abbiamo completato l’analisi dell’incidente Operazione Echo.
 
-Evidenze principali:
-- chiave segreta: [Dynamic Content]
-- servizio impattato: [Dynamic Content]
-- host coinvolto: [Dynamic Content]
-- ticket principale: [Dynamic Content]
-- BB_ID coinvolto: [Dynamic Content]
-- versione sospetta: [Dynamic Content]
-- anomalia dati: [ Scrivere qui ]
-- impatto osservato: [ Scrivere qui ]
+  Evidenze principali:
+  - chiave segreta: [Dynamic Content]
+  - servizio impattato: [Dynamic Content]
+  - host coinvolto: [Dynamic Content]
+  - ticket principale: [Dynamic Content]
+  - BB_ID coinvolto: [Dynamic Content]
+  - versione sospetta: [Dynamic Content]
 
-Ipotesi root cause:
-[ Scrivere qui la vostra ipotesi ]
+  Richiediamo approval all'indirizzo "inserire il proprio indirizzo email" per procedere con la remediation.
 
-Azione consigliata:
-[ Scrivere qui la vostra azione consigliata ]
-
-Richiediamo approval all’indirizzo [Dynamic Content] per procedere con la remediation.
-
-Gli organizzatori risponderanno solo se la richiesta sarà conforme.`,
+  Gli organizzatori risponderanno solo se la richiesta sarà conforme.`,
   },
 ];
 
